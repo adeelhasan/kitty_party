@@ -2,6 +2,9 @@ pragma solidity >=0.4.21 <0.6.0;
 
 import "./KittyPartyBase.sol";
 
+/**
+  In this variant, each cycle of a Kitty has an auction amongst the participants who have not collected as yet
+ */
 contract KittyPartyAuction is KittyPartyBase
 {
     struct Bid{
