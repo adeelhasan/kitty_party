@@ -38,7 +38,7 @@ contract("KittyPartySequential", function(accounts){
         assert(currentStatus == 1, "stage should be in Progress");
     });
 
-    it("once in progress, should not allow another participant", async function(){
+    it("once in progress, should not allow another new participant", async function(){
         let kps = await KittyPartySequential.deployed(); //kitty party contract instance
 
         try{
@@ -51,13 +51,44 @@ contract("KittyPartySequential", function(accounts){
         throw new Error("should not have allowed to add another participant");
     });
 
+    it("setting a circuit breaker emergency should reject any contributions to the kitty", async function(){
+        let kps = await KittyPartySequential.deployed();
+
+        await kps.setCircuitBreakerToStopped();
+
+        try{
+            await web3.eth.sendTransaction({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000, to: kps.address});
+        }
+        catch(e){
+            return true;
+        }
+
+        throw new Error("should not have allowed a contribution during an emergency");
+    });
+
+    it("non owner account should not be able to open the emergency", async function(){
+        let kps = await KittyPartySequential.deployed();
+
+        try{
+            await kps.setCircuitBreakerEmergencyFinished({from: accounts[1]});
+        }
+        catch(e){
+
+            //finish the emergency mode so that we can continue
+            await kps.setCircuitBreakerEmergencyFinished({from: accounts[0]});
+
+            return true;
+        }
+
+        throw new Error("should have failed when lifting up the emergency");
+    });
+
     it("closing the first cycle, should let the first participant win, and collect the kitty", async function(){
         let kpac = await KittyPartySequential.deployed(); //kitty party contract instance
 
         let account0BalanceBefore = await web3.eth.getBalance(accounts[0]);
         let account1BalanceBefore = await web3.eth.getBalance(accounts[1]);
         let account2BalanceBefore = await web3.eth.getBalance(accounts[2]);
-
 
         await kpac.completeCycle({from: accounts[0], gas: 200000});
 

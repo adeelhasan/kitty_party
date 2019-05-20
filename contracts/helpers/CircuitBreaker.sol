@@ -7,19 +7,14 @@ contract CircuitBreaker is RestrictedToOwner{
 
   CircuitBreakerState private circuitBreakerState = CircuitBreakerState.NoEmergency;
 
-  modifier notInEmergency(){if (circuitBreakerState == CircuitBreakerState.NoEmergency) _;}
-  modifier inEmergency(){if (circuitBreakerState != CircuitBreakerState.NoEmergency) _;}
-  modifier inRedAlert(){if (circuitBreakerState == CircuitBreakerState.RedAlert) _;}
+  modifier notInEmergency(){require(circuitBreakerState == CircuitBreakerState.NoEmergency,"no emergency"); _;}
+  modifier inEmergency(){require(circuitBreakerState != CircuitBreakerState.NoEmergency, "not in emergency"); _;}
+  modifier inRedAlert(){require(circuitBreakerState == CircuitBreakerState.RedAlert, "in red alert"); _;}
 
   //events
   event CircuitBreakerStopped();
   event CircuitBreakerInRedAlert();
   event CircuitBreakerEmergencyEnded();
-
-  function setCirctuitBreakerToStopped() public restrictedToOwner{
-    circuitBreakerState = CircuitBreakerState.Halted;
-    emit CircuitBreakerStopped();
-  }
 
   function setCirctuitBreakerToRedAlert() public notInEmergency restrictedToOwner{
     circuitBreakerState = CircuitBreakerState.RedAlert;
@@ -31,4 +26,8 @@ contract CircuitBreaker is RestrictedToOwner{
     emit CircuitBreakerEmergencyEnded();
   }
 
+  function setCirctuitBreakerToStopped() public restrictedToOwner{
+    circuitBreakerState = CircuitBreakerState.Halted;
+    emit CircuitBreakerStopped();
+  }
 }
