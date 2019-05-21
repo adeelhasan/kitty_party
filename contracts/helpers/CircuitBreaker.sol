@@ -26,7 +26,7 @@ contract CircuitBreaker is RestrictedToOwner{
     emit CircuitBreakerEmergencyEnded();
   }
 
-  function setCirctuitBreakerToStopped() public restrictedToOwner{
+  function setCircuitBreakerToStopped() public restrictedToOwner{
     circuitBreakerState = CircuitBreakerState.Halted;
     emit CircuitBreakerStopped();
   }

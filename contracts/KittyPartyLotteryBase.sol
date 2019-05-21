@@ -7,6 +7,8 @@ contract KittyPartyLotteryBase is KittyPartySequential{
 
   constructor (uint _amount) KittyPartySequential(_amount) public{}
 
+  event InitialLotteryDone();
+
   function getWinner() internal returns (address){
     require(hasHappenedOnce, "the random distribution needs to have been initialized");
     uint randomWinnerIndex = internal_getWinnerIndex();
@@ -15,16 +17,21 @@ contract KittyPartyLotteryBase is KittyPartySequential{
     return winner;
   }
 
-  function doInitialLottery() public atStage(Stages.InProgress) restrictedToOwner payable {
+  function doInitialLottery()
+   public
+   atStage(Stages.InProgress)
+   restrictedToOwner
+   payable
+   {
     require(cyclesCompleted == 0,"the lottery needs to happen before any cycle has completed");
     require(!hasHappenedOnce, "can only happen once");
 
     internal_doInitialLottery();
 
+    emit InitialLotteryDone();
     hasHappenedOnce = true;
   }
 
   function internal_getWinnerIndex() internal returns (uint);
   function internal_doInitialLottery() internal;
-
 }

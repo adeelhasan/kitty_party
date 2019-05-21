@@ -16,3 +16,40 @@ var contract_address; kpc.address
 kpca.receiveBid(web3.utils.toWei('1','ether'), {from: accounts[1], value: web3.utils.toWei('1','ether')})
 kpca.closeParticipants({from: accounts[0]})
 kpca.chooseWinnerAndDistribute({from: accounts[0]})
+
+/*
+
+
+//address directoryContract;
+
+contract KittyPartyDirectory{
+  mapping(address => string) public kittyParties;
+  address[] public kittyPartyAddresses;
+
+  function addToDirectory(address _address, string calldata _name) external
+  {
+    kittyParties[_address] = _name;
+    kittyPartyAddresses.push(_address);
+  }
+
+  function removeFromDirectory(address _kittyPartyAddress) external{
+    kittyParties[_kittyPartyAddress] = "";
+
+    //manual loop and then remove where found
+  }
+
+}
+
+contract NameAndPhoto {
+    string public name;
+    string public ipfsPhotoHash;
+}
+
+
+function registerKitty(string memory _name, address _directoryContract) public{
+    name = _name;
+    //call the directory contract and add there
+    directoryContract = _directoryContract;
+  }
+
+*/

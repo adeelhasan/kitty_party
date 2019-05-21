@@ -2,14 +2,19 @@ pragma solidity >=0.4.21 <0.6.0;
 
 
 contract RestrictedToOwner{
-  address private owner;
+  address private _owner;
 
   modifier restrictedToOwner() {
-    require(msg.sender == owner, "restricted to owner");
+    require(msg.sender == _owner, "restricted to owner");
     _;
   }
+
   constructor() public{
-    owner = msg.sender;
+    _owner = msg.sender;
+  }
+
+  function owner() public view returns(address){
+    return _owner;
   }
 }
 

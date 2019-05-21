@@ -2,7 +2,7 @@ pragma solidity >=0.4.21 <0.6.0;
 
 
 import "./IRandomizeRangeToArray.sol";
-import "./../ExternalArrayStorage.sol";
+import "./../ExternalUintArrayStorage.sol";
 import "./oraclizeAPI.sol";
 
 contract OraclizeRandomizer is IRandomizeRangeToArray, usingOraclize{
@@ -18,13 +18,13 @@ contract OraclizeRandomizer is IRandomizeRangeToArray, usingOraclize{
          revert("oraclize callback not from expected source");
 
       bytes memory stringInBytes = bytes(result);
-      ExternalArrayStorage currentData = ExternalArrayStorage(storageLocationAddress);
+      ExternalUintArrayStorage currentData = ExternalUintArrayStorage(storageLocationAddress);
 
       for(uint i = 0; i<stringInBytes.length; i++){
         if ((uint(uint8(stringInBytes[i])) >= 48) && (uint(uint8(stringInBytes[i])) <= 57)){
           if (!uniqueWinnersMap[uint(uint8(stringInBytes[i]))]){
                   uniqueWinnersMap[uint(uint8(stringInBytes[i]))] = true;
-                  currentData.addToStorage(uint(uint8(stringInBytes[i])-48));
+                  currentData.add(uint(uint8(stringInBytes[i])-48));
             }
           }
         }

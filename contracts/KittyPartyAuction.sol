@@ -13,10 +13,8 @@ contract KittyPartyAuction is KittyPartyBase
       bool exists;
     }
 
-
     mapping(address=>Bid) public bids;
     uint public numberOfBidders;
-
 
     modifier hasBid(){
       require(bids[msg.sender].exists,"bid exists");
@@ -35,9 +33,7 @@ contract KittyPartyAuction is KittyPartyBase
 
     event BidReceived(address indexed bidder);
 
-
     constructor (uint _amount) KittyPartyBase(_amount) public{}
-
 
     function receiveBid()
       public
@@ -53,7 +49,6 @@ contract KittyPartyAuction is KittyPartyBase
       numberOfBidders++;
       emit BidReceived(msg.sender);
     }
-
 
     //overriden implementation
     function getWinner() internal returns (address){
@@ -86,9 +81,7 @@ contract KittyPartyAuction is KittyPartyBase
         }
     }
 
-
-    /** @dev lets the user see their bid, if any
-     */
+    /** @dev lets the user see their bid, if any */
     function getMyBid() public view returns (uint, bool, bool)
     {
           Bid memory bid = bids[msg.sender];
@@ -97,7 +90,6 @@ contract KittyPartyAuction is KittyPartyBase
           else
             return (0,false,false);
     }
-
 
     //cycle has ended, now need to reset internal state for the next cycle
     function cycleCompleted() internal {
@@ -137,7 +129,8 @@ contract KittyPartyAuction is KittyPartyBase
   function refundBidsInEmergency()
     public
     inEmergency
-    restrictedToOwner{
+    restrictedToOwner
+  {
     //should check the balance first perhaps
     for (uint i = 0; i<participant_addresses.length; i++)
     {

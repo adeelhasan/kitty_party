@@ -4,7 +4,6 @@ import "./helpers/RestrictedToOwner.sol";
 import "./helpers/CircuitBreaker.sol";
 import "./KittyPartyState.sol";
 
-
 contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 
   struct KittyParticipant{
@@ -13,14 +12,12 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
     bool exists;
   }
 
-
   uint public amountPerParticipant;
   uint public cyclesCompleted;
 
   mapping(address=>KittyParticipant) participants;
   address[] participant_addresses;
   uint public numberOfParticipants;
-
 
   modifier isAParticipant(){
     require(participants[msg.sender].exists,"is a participant");
@@ -47,19 +44,16 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
     _;
   }
 
-
   event ParticipantAdded(address indexed _participant_address);
   event KittyFinished();
   event WinnerChosenForCycle(address winner, uint cycleNumber);
   event LogGotToHere(address indexed msgSender, string label);
-
 
   constructor(uint _amount) public {
     require(_amount > 0,"send some value, cannot make a kitty with zero value");
     stage = Stages.Open;
     amountPerParticipant = _amount;
   }
-
 
   function () external payable notAtStage(Stages.Finished) notInEmergency {
     require(participants[msg.sender].has_contributed_this_cycle != true, "has already funded this cycle");
@@ -81,7 +75,6 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
       participants[msg.sender].has_contributed_this_cycle = true;
   }
 
-
   function closeParticipants() external restrictedToOwner atStage(Stages.Open) {
     nextStage();
   }
@@ -97,7 +90,6 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
     }
     return true;
   }
-
 
   function getMyStatus() external view returns (bool, bool, bool) {
     KittyParticipant memory k = participants[msg.sender];
@@ -149,7 +141,6 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
     }
   }
 
-
   //abstract methods
   //sub classes will define how the winner of the current cycle is chosen
   function getWinner() internal returns (address);
@@ -158,41 +149,3 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
   function cycleCompleted() internal;
 
 }
-
-
-/*
-
-
-//address directoryContract;
-
-contract KittyPartyDirectory{
-  mapping(address => string) public kittyParties;
-  address[] public kittyPartyAddresses;
-
-  function addToDirectory(address _address, string calldata _name) external
-  {
-    kittyParties[_address] = _name;
-    kittyPartyAddresses.push(_address);
-  }
-
-  function removeFromDirectory(address _kittyPartyAddress) external{
-    kittyParties[_kittyPartyAddress] = "";
-
-    //manual loop and then remove where found
-  }
-
-}
-
-contract NameAndPhoto {
-    string public name;
-    string public ipfsPhotoHash;
-}
-
-
-function registerKitty(string memory _name, address _directoryContract) public{
-    name = _name;
-    //call the directory contract and add there
-    directoryContract = _directoryContract;
-  }
-
-*/

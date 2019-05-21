@@ -2,9 +2,8 @@ pragma solidity >=0.4.21 <0.6.0;
 
 import "./KittyPartyLotteryBase.sol";
 import "./helpers/RestrictedToOwner.sol";
-import "./helpers/ExternalArrayStorage.sol";
+import "./helpers/ExternalUintArrayStorage.sol";
 import "./helpers/randomizers/IRandomizeRangeToArray.sol";
-
 
 contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
 {
@@ -22,8 +21,8 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     }
 
     function internal_getWinnerIndex() internal returns (uint){
-      ExternalArrayStorage localReferenceToStorage = ExternalArrayStorage(externalStorageAddress);
-      return localReferenceToStorage.getValueAt(nextWinnerIndex);
+      ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+      return localReferenceToStorage.getAt(nextWinnerIndex);
     }
 
     function updateRandomizer(address _randomizer) public restrictedToOwner{
@@ -36,7 +35,18 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
       hasHappenedOnce = false;
     }
 
-    function internal_doInitialLottery() internal {
+    function enumerateOrderOfWinners() public view returns(uint[] memory){
+      ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+      return localReferenceToStorage.getArray();
+    }
+
+    function orderOfWinnersLength() public view returns(uint){
+      ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+      return localReferenceToStorage.getLength();
+    }
+
+
+    function internal_doInitialLottery() internal{
       IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
       randomizer.randomize(numberOfParticipants, externalStorageAddress);
     }
