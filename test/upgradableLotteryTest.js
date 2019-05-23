@@ -39,7 +39,7 @@ contract("KittyPartyLotteryUpgradable", function(accounts){
         let winnersOrderArrayLength = await kplottery.orderOfWinnersLength(); //should be 0 length
         assert(winnersOrderArrayLength == 0, "no ordering yet");
 
-        await kplottery.doInitialLottery();
+        await kplottery.initialLottery();
         winnersOrderArrayLength = await kplottery.orderOfWinnersLength(); //should be populated now
 
         assert(Math.abs(winnersOrderArrayLength-numberOfParticipants)==0, "should have selected an ordering as many as the participants");

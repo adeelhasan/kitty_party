@@ -9,9 +9,11 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
   mapping(uint => bool) public uniqueWinnersMap;
   uint[] public randomlySelectedWinners;
 
+  event OraclizeResponseReceived(bytes32 id);
+
   constructor (uint _amount) KittyPartyLotteryBase(_amount) public{}
 
-  function internal_getWinnerIndex() internal returns(uint){
+  function doGetWinnerIndex() internal returns(uint){
     require(randomlySelectedWinners.length > 0, "the randomized collection is not valid as yet");
     return randomlySelectedWinners[nextWinnerIndex];
   }
@@ -29,9 +31,10 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
           }
         }
       }
+      emit OraclizeResponseReceived(myid);
   }
 
-  function internal_doInitialLottery() internal{
+  function doInitialLottery() internal{
       string memory query_string = strConcat("RandomInteger[",uint2str(numberOfParticipants-1),",",uint2str(numberOfParticipants*5),"]");
       oraclize_query("WolframAlpha", query_string);
   }

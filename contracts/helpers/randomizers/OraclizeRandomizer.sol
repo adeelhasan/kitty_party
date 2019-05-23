@@ -9,6 +9,8 @@ contract OraclizeRandomizer is IRandomizeRangeToArray, usingOraclize{
     mapping(uint => bool) public uniqueWinnersMap;
     address storageLocationAddress;
 
+    event OraclizeResponseReceived(bytes32 id);
+
     constructor(address _storage) public{
       storageLocationAddress = _storage;
     }
@@ -28,6 +30,8 @@ contract OraclizeRandomizer is IRandomizeRangeToArray, usingOraclize{
             }
           }
         }
+
+        emit OraclizeResponseReceived(myid);
     }
 
     function randomize(uint numberToSelect, address _arrayStorage) external{

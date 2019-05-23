@@ -7,13 +7,16 @@ import "./KittyPartyState.sol";
 contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 
   struct KittyParticipant{
-    bool has_contributed_this_cycle;
-    bool has_won_a_cycle;
     bool exists;
+    bool hasContributedThisCycle;
+    uint cycleNumberWon;
+    bool hasWithdrawnWinnings;
   }
 
   uint public amountPerParticipant;
-  uint public cyclesCompleted;
+  uint public currentCycleNumber;
+  uint constant MAX_PARTICIPANTS=20;
+  uint constant MAX_CONTRIBUTION = 2 ether;
 
   mapping(address=>KittyParticipant) participants;
   address[] participant_addresses;
@@ -25,46 +28,47 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
   }
 
   modifier hasContributedInCurrentCycle(){
-    require(participants[msg.sender].has_contributed_this_cycle,"has contributed this cycle");
+    require(participants[msg.sender].hasContributedThisCycle,"has contributed this cycle");
     _;
   }
 
   modifier hasNotContributedInCurrentCycle(){
-    require((participants[msg.sender].exists && !participants[msg.sender].has_contributed_this_cycle),"has not contributed this cycle");
+    require((participants[msg.sender].exists && !participants[msg.sender].hasContributedThisCycle),"has not contributed this cycle");
     _;
   }
 
   modifier hasWonACycle(){
-    require(participants[msg.sender].exists && participants[msg.sender].has_won_a_cycle,"has won a cycle");
+    require((participants[msg.sender].exists && participants[msg.sender].cycleNumberWon>0),"has won a cycle");
     _;
   }
 
   modifier hasNotWonACycle(){
-    require(participants[msg.sender].exists && !participants[msg.sender].has_won_a_cycle,"has not won a cycle");
+    require((participants[msg.sender].exists && participants[msg.sender].cycleNumberWon==0),"has not won a cycle");
     _;
   }
 
   event ParticipantAdded(address indexed _participant_address);
-  event KittyFinished();
   event WinnerChosenForCycle(address winner, uint cycleNumber);
-  event LogGotToHere(address indexed msgSender, string label);
+  event KittyFinished();
 
   constructor(uint _amount) public {
     require(_amount > 0,"send some value, cannot make a kitty with zero value");
+    require(_amount <= MAX_CONTRIBUTION, "value is capped to control risk");
     stage = Stages.Open;
     amountPerParticipant = _amount;
   }
 
   function () external payable notAtStage(Stages.Finished) notInEmergency {
-    require(participants[msg.sender].has_contributed_this_cycle != true, "has already funded this cycle");
+    require(participants[msg.sender].hasContributedThisCycle != true, "has already funded this cycle");
     require(msg.value == amountPerParticipant, "the correct amount should be sent");
+    require(numberOfParticipants <= MAX_PARTICIPANTS, "max participants reached, cannot take more");
 
     //participant does not exist, so add
     if (!participants[msg.sender].exists)
     {
       require(stage == Stages.Open, "kitty is not open for more participants to be added");
 
-      participants[msg.sender] = KittyParticipant(true,false,true);
+      participants[msg.sender] = KittyParticipant(true,true,0,false);
       participant_addresses.push(msg.sender);
 
       numberOfParticipants++;
@@ -72,18 +76,19 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
       emit ParticipantAdded(msg.sender);
     }
     else
-      participants[msg.sender].has_contributed_this_cycle = true;
+      participants[msg.sender].hasContributedThisCycle = true;
   }
 
-  function closeParticipants() external restrictedToOwner atStage(Stages.Open) {
+  function closeParticipants() external restrictedToOwner atStage(Stages.Open){
     nextStage();
+    currentCycleNumber = 1;
   }
 
   function hasEveryoneContributedThisCycle() public view atStage(Stages.InProgress) returns (bool)
   {
     for (uint i = 0; i<numberOfParticipants; i++)
     {
-      if (!participants[participant_addresses[i]].has_contributed_this_cycle)
+      if (!participants[participant_addresses[i]].hasContributedThisCycle)
       {
         return false;
       }
@@ -91,61 +96,71 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
     return true;
   }
 
-  function getMyStatus() external view returns (bool, bool, bool) {
+  function getMyStatus() external view returns (bool, bool, uint, bool) {
     KittyParticipant memory k = participants[msg.sender];
     if (k.exists)
-      return (k.has_contributed_this_cycle, k.has_won_a_cycle, k.exists);
+      return (k.exists, k.hasContributedThisCycle, k.cycleNumberWon, k.hasWithdrawnWinnings);
     else
-      return (false,false,false);
+      return (false,false,0,false);
   }
 
-  function refundParticipants() public inEmergency restrictedToOwner{
-    //should check the balance first perhaps
+  function withdrawMyRefund() public inEmergency{
+    if (participants[msg.sender].hasContributedThisCycle){
+      participants[msg.sender].hasContributedThisCycle = false;
+      msg.sender.transfer(amountPerParticipant);
 
-    for (uint i = 0; i<numberOfParticipants; i++)
-    {
-      if (participants[participant_addresses[i]].has_contributed_this_cycle){
-        address payable participantAddress = address(uint160(participant_addresses[i]));
-        participantAddress.transfer(amountPerParticipant);
-      }
+      doWithdrawMyRefund();
     }
   }
 
-  function completeCycle() public notInEmergency restrictedToOwner atStage(Stages.InProgress){
+  function withdrawMyWinnings() public notInEmergency{
+    if ((participants[msg.sender].cycleNumberWon > 0) && !participants[msg.sender].hasWithdrawnWinnings){
+      participants[msg.sender].hasWithdrawnWinnings = true;
+      uint amountToTransfer = numberOfParticipants * amountPerParticipant;
+      msg.sender.transfer(amountToTransfer);
+    }
+  }
+
+  function completeCycle()
+    public
+    notInEmergency
+    restrictedToOwner
+    atStage(Stages.InProgress){
     require(hasEveryoneContributedThisCycle(),"Everyone should have contributed by now");
 
     //call a descendant implementation to get the winner.
-    address winner = getWinner();
+    address winner = doGetWinner();
+    participants[winner].cycleNumberWon = currentCycleNumber;
 
-    address payable winnerThisCycle = address(uint160(winner));
-
-    //ToDo : have to protect against overflow
-    uint amountToTransfer = numberOfParticipants * amountPerParticipant;
-    winnerThisCycle.transfer(amountToTransfer);
-    participants[winner].has_won_a_cycle = true;
-    cyclesCompleted++;
-
-    cycleCompleted();
-    emit WinnerChosenForCycle(winner, cyclesCompleted);
+    doCycleCompleted();
 
     for (uint i = 0; i<numberOfParticipants; i++)
     {
-      participants[participant_addresses[i]].has_contributed_this_cycle = false;
+      participants[participant_addresses[i]].hasContributedThisCycle = false;
     }
 
+    emit WinnerChosenForCycle(winner, currentCycleNumber);
+
     //if all cycles have been called, the kittyParty is finished
-    if (numberOfParticipants == cyclesCompleted)
+    if (numberOfParticipants == currentCycleNumber)
     {
       nextStage();
       emit KittyFinished();
     }
+    else
+      currentCycleNumber++;
   }
 
   //abstract methods
   //sub classes will define how the winner of the current cycle is chosen
-  function getWinner() internal returns (address);
+  function doGetWinner() internal returns (address);
 
   //chance for subclasses to regorganize internal state on completion of a cycle
-  function cycleCompleted() internal;
+  function doCycleCompleted() internal;
+
+  //chance to do subclass specific action for refund
+  function doWithdrawMyRefund() internal{
+    //empty implementation, rather than being an abstract function
+  }
 
 }

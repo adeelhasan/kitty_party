@@ -20,13 +20,18 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
       return randomizer.getRandomizerName();
     }
 
-    function internal_getWinnerIndex() internal returns (uint){
+    function doGetWinnerIndex() internal returns (uint){
       ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
       return localReferenceToStorage.getAt(nextWinnerIndex);
     }
 
+    function doInitialLottery() internal{
+      IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
+      randomizer.randomize(numberOfParticipants, externalStorageAddress);
+    }
+
     function updateRandomizer(address _randomizer) public restrictedToOwner{
-      require(cyclesCompleted == 0,"updating the randomizer only makes sense before any disbursement happens");
+      // require(currentCycleNumber == 1,"updating the randomizer only makes sense before the initial lottery");
 
       //the legacy randomizer need not be deleted
       upgradableRandomizerAddress = _randomizer;
@@ -43,11 +48,5 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     function orderOfWinnersLength() public view returns(uint){
       ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
       return localReferenceToStorage.getLength();
-    }
-
-
-    function internal_doInitialLottery() internal{
-      IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
-      randomizer.randomize(numberOfParticipants, externalStorageAddress);
     }
 }

@@ -59,20 +59,22 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
         let account1BalanceBefore = await web3.eth.getBalance(accounts[1]);
         let account2BalanceBefore = await web3.eth.getBalance(accounts[2]);
 
-        await kpac.completeCycle({from: accounts[0], gas: 200000});
+        await kpac.completeCycle({from: accounts[0], gas: 300000});
+        await kpac.withdrawMyWinnings({from: accounts[2]});
+        await kpac.withdrawMyInterest({from: accounts[0]});
+        await kpac.withdrawMyInterest({from: accounts[1]});
 
         let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
         let account1BalanceAfter = await web3.eth.getBalance(accounts[1]);
         let account2BalanceAfter = await web3.eth.getBalance(accounts[2]);
 
-        let bn3Ethers = new web3.utils.BN(web3.utils.toWei('3','ether'));
+        let bnAlmost3Ethers = new web3.utils.BN(web3.utils.toWei('2.98','ether'));
 
-        //console.log('after: %s before: %s  bid: %s dividend: %s',account1BalanceAfter, account1BalanceBefore,account1Bid, expectedDividend);
         var expectedBalance = new web3.utils.BN(account1BalanceBefore.toString());
         expectedBalance = expectedBalance.add(new web3.utils.BN(account1Bid.toString()));
         expectedBalance = expectedBalance.add(new web3.utils.BN(expectedDividend.toString()));
 
-        assert(Math.abs(account2BalanceAfter - account2BalanceBefore) == bn3Ethers, "winning bid got the kitty amount");
+        assert(Math.abs(account2BalanceAfter - account2BalanceBefore) > bnAlmost3Ethers, "winning bid got the kitty amount");
         //assert(new web3.utils.BN(account1BalanceAfter.toString()).eq(expectedBalance),"failed bid was refunded properly, along with dividend");
     });
 
@@ -83,7 +85,6 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
         await web3.eth.sendTransaction({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
         await web3.eth.sendTransaction({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
         await web3.eth.sendTransaction({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
-
 
         await kpac.receiveBid({from: accounts[0], value: account0Bid});
         await kpac.receiveBid({from: accounts[1], value: account1Bid});
@@ -100,30 +101,32 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
     it("closing the second cycle", async function(){
         let kpac = await KittyPartyAuction.deployed(); //kitty party contract instance
 
+        let numberOfBids = await kpac.numberOfBidders();
+        assert(Math.abs(numberOfBids-2)==0, "2 bids");
+
         let account0BalanceBefore = await web3.eth.getBalance(accounts[0]);
         let account1BalanceBefore = await web3.eth.getBalance(accounts[1]);
         let account2BalanceBefore = await web3.eth.getBalance(accounts[2]);
 
         await kpac.completeCycle({from: accounts[0], gas: 200000});
+        await kpac.withdrawMyWinnings({from: accounts[1]});
+        await kpac.withdrawMyInterest({from: accounts[0]});
 
         let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
         let account1BalanceAfter = await web3.eth.getBalance(accounts[1]);
         let account2BalanceAfter = await web3.eth.getBalance(accounts[2]);
 
-        let bn3Ethers = new web3.utils.BN(web3.utils.toWei('3','ether'));
+        let bnAlmost3Ethers = new web3.utils.BN(web3.utils.toWei('2.90','ether'));
 
         var expectedBalance = new web3.utils.BN(account0BalanceBefore.toString());
         expectedBalance = expectedBalance.add(new web3.utils.BN(account0Bid.toString()));
         expectedBalance = expectedBalance.add(new web3.utils.BN(expectedDividendCycle2.toString()));
 
-        //console.log('after: %s before: %s  bid: %s expected balance: %s, dividend: %s',account0BalanceAfter, account0BalanceBefore,account1Bid, expectedBalance.toString(), expectedDividendCycle2.toString());
+        //console.log('after: %s before: %s ',account1BalanceAfter, account1BalanceBefore);
 
-        assert(Math.abs(account1BalanceAfter - account1BalanceBefore) == bn3Ethers, "winning bid got the kitty amount");
-        
-        //cannot use this accurately, since account0 also consumes gas
-        //assert(new web3.utils.BN(account0BalanceAfter.toString()).eq(expectedBalance),"failed bid was refunded properly, along with dividend");
+        assert(Math.abs(account1BalanceAfter - account1BalanceBefore) > bnAlmost3Ethers, "winning bid got the kitty amount");
     });
-    
+
     it("the third and final cycle, should leave the Kitty Stage to be finished", async function(){
         let kpac = await KittyPartyAuction.deployed(); //kitty party contract instance
 
@@ -138,27 +141,18 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
             throw new Error("previous winners bid should not have allowed to bid again");
         }
         catch(e){            
-            //proceed ..
+            //expected behavior, can keep going
         }
     
 
-        let account0BalanceBefore = await web3.eth.getBalance(accounts[0]);
         let account1BalanceBefore = await web3.eth.getBalance(accounts[1]);
-        let account2BalanceBefore = await web3.eth.getBalance(accounts[2]);
 
         await kpac.completeCycle({from: accounts[0], gas: 200000});
+        await kpac.withdrawMyWinnings({from: accounts[0]});
 
-        let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
         let account1BalanceAfter = await web3.eth.getBalance(accounts[1]);
-        let account2BalanceAfter = await web3.eth.getBalance(accounts[2]);
-
-        let bn3Ethers = new web3.utils.BN(web3.utils.toWei('3','ether'));
-
 
         let finalStatus = await kpac.getStage();
-
-        //console.log('after: %s before: %s',account0BalanceAfter, account0BalanceBefore);
-
 
         assert(finalStatus == 2, "final status should be finished, enum value is 2");
         assert(Math.abs(account1BalanceAfter - account1BalanceBefore) == 0, "other account's balance should not have been effected");

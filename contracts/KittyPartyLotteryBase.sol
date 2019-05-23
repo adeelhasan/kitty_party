@@ -11,27 +11,25 @@ contract KittyPartyLotteryBase is KittyPartySequential{
 
   function getWinner() internal returns (address){
     require(hasHappenedOnce, "the random distribution needs to have been initialized");
-    uint randomWinnerIndex = internal_getWinnerIndex();
-    participants[participant_addresses[randomWinnerIndex]].has_won_a_cycle = true;
-    address winner = participant_addresses[nextWinnerIndex];
-    return winner;
+    uint randomWinnerIndex = doGetWinnerIndex();
+    return participant_addresses[randomWinnerIndex];
   }
 
-  function doInitialLottery()
+  function initialLottery()
    public
    atStage(Stages.InProgress)
    restrictedToOwner
    payable
    {
-    require(cyclesCompleted == 0,"the lottery needs to happen before any cycle has completed");
+    //require(cyclesCompleted == 0,"the lottery needs to happen before any cycle has completed");
     require(!hasHappenedOnce, "can only happen once");
 
-    internal_doInitialLottery();
+    doInitialLottery();
 
     emit InitialLotteryDone();
     hasHappenedOnce = true;
   }
 
-  function internal_getWinnerIndex() internal returns (uint);
-  function internal_doInitialLottery() internal;
+  function doGetWinnerIndex() internal returns (uint);
+  function doInitialLottery() internal;
 }

@@ -8,15 +8,15 @@ contract KittyPartySequential is KittyPartyBase
 
     constructor (uint _amount) KittyPartyBase(_amount) public{}
 
-    function getWinner() internal returns (address){
-      participants[participant_addresses[nextWinnerIndex]].has_won_a_cycle = true;
+    function doGetWinner() internal returns (address){
       address winner = participant_addresses[nextWinnerIndex];
       return winner;
     }
 
-    function cycleCompleted() internal {
+    function doCycleCompleted() internal{
       nextWinnerIndex++;
     }
+
 }
 
 

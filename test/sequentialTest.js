@@ -91,6 +91,7 @@ contract("KittyPartySequential", function(accounts){
         let account2BalanceBefore = await web3.eth.getBalance(accounts[2]);
 
         await kpac.completeCycle({from: accounts[0], gas: 200000});
+        await kpac.withdrawMyWinnings({from: accounts[0]});
 
         let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
         let account1BalanceAfter = await web3.eth.getBalance(accounts[1]);
@@ -117,6 +118,7 @@ contract("KittyPartySequential", function(accounts){
         await web3.eth.sendTransaction({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
 
         await kpac.completeCycle({from: accounts[0], gas: 200000});
+        await kpac.withdrawMyWinnings({from: accounts[1]});
 
         //third cycle
         await web3.eth.sendTransaction({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
@@ -124,6 +126,7 @@ contract("KittyPartySequential", function(accounts){
         await web3.eth.sendTransaction({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
 
         await kpac.completeCycle({from: accounts[0], gas: 200000});
+        await kpac.withdrawMyWinnings({from: accounts[2]});
 
         let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
         let account1BalanceAfter = await web3.eth.getBalance(accounts[1]);
