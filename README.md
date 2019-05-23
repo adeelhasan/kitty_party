@@ -10,7 +10,7 @@ This scheme is informal in that if one person cannot show up, then they send the
 
 Design Decisions
 
-There is a base contract which imposes an overall structure, and descendant classes which implement key abstract functions. This is also called the Template Design Pattern for class design, and the convention is to have the templated functions be prefaced by "do" eg, doInitialLottery
+There is a base contract which imposes an overall structure, and descendant classes which implement key abstract functions. This is also called the Template Design Pattern for class design, and in this project the nameing convention is to have the templated functions be prefaced by "do" eg, doInitialLottery
 
 - KittyPartyBase 
   - KittySequential
@@ -19,34 +19,25 @@ There is a base contract which imposes an overall structure, and descendant clas
     - KittyPartyLotteryUpgradable
   - KittyPartyAuction
 
+<embed an image or thumbnail>
 For a UML diagram of this structure, please see :
+sol2uml
 
-
-Design Patterns Used
-
-Withdrawl Pattern: 
-
-there are two places where value needs to flow out from the contract, and these are made as withdrawl functions to be invoked by the external account
-
- in the contract KittyPartyAuction, losing bids are returned to their originators. The balance that needs to be returned is kept in the contract. This internal balance is assigned to 0 before the value is transferred back.
-
-State Machine : there is a KittyStateContract which manages its internal stage.
-
-Thought Processes for Common Attacks
-- control of the functions that distribute value is limited to the owner, via modifiers
-- there is an upper limit to the number of participants in the kitty. there are various loops which can cause block gas limit errors, so this is a necessary compromise to make
-- 
-
-Aside from the withdrawl pattern, 
-
-
--Use of ENS
+-- use of library for SafeMath
+-- Use of ENS
 -- Use of IPFS? could be with the kitty partry directory concept
 -- use of vyper, can it be use with solidity code
--- use of library for SafeMath
 
 testnet addresses
 ropsten:
 
 testing instructions
 making a video
+
+
+---------
+
+npm install truffle_hardware_wallet
+npm install 
+
+setup your process level environment variables
