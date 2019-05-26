@@ -18,12 +18,18 @@
  *
  */
 
+require('dotenv').config()
 const HDWalletProvider = require('truffle-hdwallet-provider');
 
-const fs = require('fs');
-const mnemonic = fs.readFileSync(".secret").toString().trim();
-const infuraKey = fs.readFileSync(".infuraKey").toString().trim();
-let walletOffset = 2;
+// const fs = require('fs');
+// const mnemonic = fs.readFileSync(".secret").toString().trim();
+// const infuraKey = fs.readFileSync(".infuraKey").toString().trim();
+// let walletOffset = 2;
+
+const mnemonic = process.env.mnemonic;
+const infuraKey = process.env.infuraKey;
+let walletOffset = process.env.walletOffset;
+
 
 module.exports = {
   /**

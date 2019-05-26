@@ -1,9 +1,12 @@
 pragma solidity >=0.4.21 <0.6.0;
 
 import "./RestrictedToOwner.sol";
+import "./SafeArrayLib.sol";
 
 //storage which is separated out
 contract ExternalUintArrayStorage {
+
+    using SafeArrayLib for uint[];
     uint[] uintArray;
 
     function getArray() public view returns (uint[] memory array_){
@@ -21,17 +24,15 @@ contract ExternalUintArrayStorage {
     }
 
     function add(uint i) public{
-        uintArray.push(i);
+        uintArray.addTo(i);
     }
 
     function setAt(uint _index, uint _value) public{
-        require(_index < uintArray.length, "array should be in bounds");
-        uintArray[_index] = _value;
+        uintArray.setAt(_index,_value);
     }
 
     function getAt(uint _index) public view returns(uint){
-        require(_index < uintArray.length, "array reference should be in bounds");
-        return uintArray[_index];
+        return uintArray.getAt(_index);
     }
 
     function getLength() public view returns(uint){

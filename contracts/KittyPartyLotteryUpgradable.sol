@@ -49,4 +49,8 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
       ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
       return localReferenceToStorage.getLength();
     }
+
+    function doWithdrawMyRefund() internal{
+        //nothing happens in this case
+    }
 }

@@ -38,4 +38,8 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
       string memory query_string = strConcat("RandomInteger[",uint2str(numberOfParticipants-1),",",uint2str(numberOfParticipants*5),"]");
       oraclize_query("WolframAlpha", query_string);
   }
+
+  function doWithdrawMyRefund() internal{
+      //nothing happens in this case
+  }
 }

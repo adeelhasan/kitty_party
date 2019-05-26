@@ -41,3 +41,7 @@ npm install truffle_hardware_wallet
 npm install 
 
 setup your process level environment variables
+
+---------
+
+Running the Frontend Application

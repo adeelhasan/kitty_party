@@ -2,34 +2,38 @@ pragma solidity >=0.4.21 <0.6.0;
 
 import "./KittyPartySequential.sol";
 
+// this is ultimately just a sequential draw, however a random order is set at the onset
 contract KittyPartyLotteryBase is KittyPartySequential{
-  bool internal hasHappenedOnce;
+    bool internal hasHappenedOnce;  //used to track if the lottery has been done or not
 
-  constructor (uint _amount) KittyPartySequential(_amount) public{}
+    constructor (uint _amount) KittyPartySequential(_amount) public{};
 
-  event InitialLotteryDone();
+    //log that the order has been set by a lottery
+    event InitialLotteryDone();
 
-  function getWinner() internal returns (address){
-    require(hasHappenedOnce, "the random distribution needs to have been initialized");
-    uint randomWinnerIndex = doGetWinnerIndex();
-    return participant_addresses[randomWinnerIndex];
-  }
+    /// @dev override of the base class, gets the winner for this cycle
+    function getWinner() internal returns (address){
+        require(hasHappenedOnce, "the random distribution needs to have been initialized");
+        uint randomWinnerIndex = doGetWinnerIndex();
+        return participant_addresses[randomWinnerIndex];
+    }
 
-  function initialLottery()
-   public
-   atStage(Stages.InProgress)
-   restrictedToOwner
-   payable
-   {
-    //require(cyclesCompleted == 0,"the lottery needs to happen before any cycle has completed");
-    require(!hasHappenedOnce, "can only happen once");
+    /// @dev this should be called after the participants are added, and sets up the order of distribution
+    function initialLottery()
+        public
+        atStage(Stages.InProgress)
+        restrictedToOwner
+        payable
+    {
+        require(!hasHappenedOnce, "can only happen once");
+        doInitialLottery();
+        emit InitialLotteryDone();
+        hasHappenedOnce = true;     //make sure that the lottery does not happen again
+    }
 
-    doInitialLottery();
+    /// @dev abstract function to get the next winner index from descendant
+    function doGetWinnerIndex() internal returns (uint);
 
-    emit InitialLotteryDone();
-    hasHappenedOnce = true;
-  }
-
-  function doGetWinnerIndex() internal returns (uint);
-  function doInitialLottery() internal;
+    /// @dev abstract function to do the descendant specific lottery
+    function doInitialLottery() internal;
 }
