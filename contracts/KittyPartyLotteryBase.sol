@@ -6,7 +6,7 @@ import "./KittyPartySequential.sol";
 contract KittyPartyLotteryBase is KittyPartySequential{
     bool internal hasHappenedOnce;  //used to track if the lottery has been done or not
 
-    constructor (uint _amount) KittyPartySequential(_amount) public{};
+    constructor (uint _amount) KittyPartySequential(_amount) public{}
 
     //log that the order has been set by a lottery
     event InitialLotteryDone();

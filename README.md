@@ -6,6 +6,16 @@ Who gets the kitty every month is usually based on some kind of a lottery. This 
 
 This scheme is informal in that if one person cannot show up, then they send the money along with a neighbour, or they drop it off the  next day.
 
+User Stories
+
+- someone announces a kitty for a certain amount, and word spreads
+- whoever wants to join, gets in touch with the organizer
+- if there is space, the organizer says they are in
+- the participants have an initial meeting, and everyone brings the designated amount
+- if someone couldnt make the meeting, they would have given the amount to the organizer separately
+- at the first meeting, there is a random draw -- names are written on paper chits and someone (usually a child) will pick these out
+- 
+
 ----------------
 
 Design Decisions
@@ -23,7 +33,6 @@ There is a base contract which imposes an overall structure, and descendant clas
 For a UML diagram of this structure, please see :
 sol2uml
 
--- use of library for SafeMath
 -- Use of ENS
 -- Use of IPFS? could be with the kitty partry directory concept
 -- use of vyper, can it be use with solidity code
