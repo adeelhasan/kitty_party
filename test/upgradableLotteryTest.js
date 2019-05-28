@@ -5,7 +5,8 @@ var BlockRandomizer = artifacts.require("./BlockRandomizer.sol");
 
 
 contract("KittyPartyLotteryUpgradable", function(accounts){
-    it("should be able to switch the randomizer", async function(){
+    it("should be able to switch the randomizer", async function() {
+
         let kplottery = await KittyPartyLotteryUpgradable.deployed();
         let oraclizeRandomizer = await OraclizeRandomizer.deployed();
         let blockRandomizer = await BlockRandomizer.deployed();
@@ -16,7 +17,7 @@ contract("KittyPartyLotteryUpgradable", function(accounts){
         await kplottery.getTypeOfRandomizer().then((r)=>{intialRandomizerName = r;});
         await kplottery.updateRandomizer(blockRandomizer.address);
         await kplottery.getTypeOfRandomizer().then((r)=>{updatedRandomizerName = r;});
-        
+
         assert(intialRandomizerName == "oraclizer", "initial randomizer should be oraclize");
         assert(updatedRandomizerName == "blockHash", "updated randomizer should be blockHash");
     });

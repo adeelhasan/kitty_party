@@ -36,6 +36,7 @@ contract KittyPartyAuction is KittyPartyBase
         _;
     }
 
+    /// @dev log that a bid was made
     event BidReceived(address indexed bidder);
 
     constructor (uint _amount) KittyPartyBase(_amount) public{}
@@ -58,7 +59,7 @@ contract KittyPartyAuction is KittyPartyBase
     }
 
     /// @dev utility function to get the sender's bid
-    function getMyBid() public view returns (uint, bool, bool){
+    function getMyBid() public view returns (uint, bool, bool) {
         Bid memory bid = bids[msg.sender];
         if (bid.exists)
             return (bid.amount, bid.winningBid, bid.exists);
@@ -67,21 +68,21 @@ contract KittyPartyAuction is KittyPartyBase
     }
 
     /// @dev after a cycle is finished, a participant can claim their share of the winner's bid
-    function withdrawMyInterest() public{
+    function withdrawMyInterest() public {
         uint amount = bidRefundWithdrawls[msg.sender];
         bidRefundWithdrawls[msg.sender] = 0;
         msg.sender.transfer(amount);
     }
 
     /// @dev after a cycle is finished, a participant can can claim their unused bid amount
-    function withdrawBidRefund() public{
+    function withdrawBidRefund() public {
         uint amount = bidRefundWithdrawls[msg.sender];
         bidRefundWithdrawls[msg.sender] = 0;
         msg.sender.transfer(amount);
     }
 
     /// @dev this is called by base class when in an emergency, the user can withdraw a bid
-    function doWithdrawMyRefund() internal{
+    function doWithdrawMyRefund() internal {
         if (bids[msg.sender].exists){
             bids[msg.sender].amount = 0;    //the internal balance is set to 0
             msg.sender.transfer(bids[msg.sender].amount);
@@ -89,7 +90,7 @@ contract KittyPartyAuction is KittyPartyBase
     }
 
     /// @dev implementation of abstract to get the winner for this cycle
-    function doGetWinner() internal returns (address){
+    function doGetWinner() internal returns (address) {
         //if this is the last cycle, so no bidders here, just return the remaining participant who has not won as yet
         if ((numberOfParticipants - currentCycleNumber) < 1){
           for (uint i = 0; i<numberOfParticipants; i++){
@@ -100,14 +101,14 @@ contract KittyPartyAuction is KittyPartyBase
 
         uint highestBidIndex = 0;   // the index will be passed back to the super class as the winner
         uint highestBidAmount = 0;  // the winning amount could be logged
-        for (uint i = 0; i<numberOfParticipants; i++){
-            if (bids[participant_addresses[i]].exists && bids[participant_addresses[i]].amount>highestBidAmount){
+        for (uint i = 0; i<numberOfParticipants; i++) {
+            if (bids[participant_addresses[i]].exists && bids[participant_addresses[i]].amount>highestBidAmount) {
                 highestBidAmount = bids[participant_addresses[i]].amount;
                 highestBidIndex = i;
             }
         }
 
-        if (numberOfBidders>0){
+        if (numberOfBidders>0) {
             bids[participant_addresses[highestBidIndex]].winningBid = true;
             return participant_addresses[highestBidIndex];
         }else{
@@ -122,6 +123,7 @@ contract KittyPartyAuction is KittyPartyBase
         if (numberOfBidders == 0)
             return;
 
+        //find what the highest bid amount is, so that it can get distributed out
         uint interestToBeDistributed = 0;
         for (uint i = 0; i<participant_addresses.length; i++){
             if (bids[participant_addresses[i]].exists && bids[participant_addresses[i]].winningBid){
@@ -130,6 +132,7 @@ contract KittyPartyAuction is KittyPartyBase
             }
         }
 
+        //setup the withdrawl pattern so that the interest to be distributed can be claimed / retrieved
         for (uint i = 0; i<participant_addresses.length; i++){
             if (bids[participant_addresses[i]].exists && !bids[participant_addresses[i]].winningBid)
             {

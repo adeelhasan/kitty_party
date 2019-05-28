@@ -3,39 +3,53 @@ pragma solidity >=0.4.21 <0.6.0;
 import "./RestrictedToOwner.sol";
 import "./SafeArrayLib.sol";
 
-//storage which is separated out
+/**
+    storage which can addressable.
+    links to SafeArrayLib which has bounds checking
+ */
 contract ExternalUintArrayStorage {
 
     using SafeArrayLib for uint[];
     uint[] uintArray;
 
-    function getArray() public view returns (uint[] memory array_){
+    /// @dev dumps out the array
+    /// @return uint[]
+    function getArray() public view returns (uint[] memory array_) {
         array_ = new uint[] (uintArray.length);
-        for(uint i = 0; i < uintArray.length; i++){
+        for (uint i = 0; i < uintArray.length; i++){
             array_[i] = uintArray[i];
         }
     }
 
-    function setFromArray(uint[] memory _array) public{
+    /// @dev sets internal storage to be the array passed in
+    /// @param _array uint[] to set itself to
+    function setFromArray(uint[] memory _array) public {
         require(uintArray.length==0, "array has to be empty to be overwritten");
-        for(uint i = 0; i < _array.length; i++){
+        for (uint i = 0; i < _array.length; i++){
             uintArray[i] = _array[i];
         }
     }
 
-    function add(uint i) public{
-        uintArray.addTo(i);
+    /// @dev appends to the storage
+    /// @param _value value to be pushed to array
+    function add(uint _value) public {
+        uintArray.addTo(_value);
     }
 
-    function setAt(uint _index, uint _value) public{
+    /// @dev getLength gets array length
+    /// @param _index zero based offset in the array
+    /// @param _value uint value to put into array
+    function setAt(uint _index, uint _value) public {
         uintArray.setAt(_index,_value);
     }
 
-    function getAt(uint _index) public view returns(uint){
+    function getAt(uint _index) public view returns(uint) {
         return uintArray.getAt(_index);
     }
 
-    function getLength() public view returns(uint){
+    /// @dev getLength gets array length
+    /// @return length
+    function getLength() public view returns(uint) {
         return uintArray.length;
     }
 }

@@ -19,12 +19,15 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
         var contractBalance = await web3.eth.getBalance(kpac.address);
         
         assert(contractBalance == new web3.utils.BN(web3.utils.toWei('3','ether')), "contract has received three participants");
+    });
+
+    it("closing the participants should set the state to Started", async function(){
+        let kpac = await KittyPartyAuction.deployed(); //kitty party contract instance
 
         await kpac.closeParticipants();
-        let currentStatus = await kpac.getStage();
+        let currentStage = await kpac.getStage();
 
-        assert(currentStatus == 1, "stage should be in Progress");
-        
+        assert(currentStage == 1, "stage should be Started");        
     });
 
     it("should have three bids entered", async function(){
@@ -92,6 +95,7 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
             await kpac.receiveBid({from: accounts[2], value: account2Bid});
         }
         catch(e){
+            //an exception had been expected, since this account has won before
             return true;
         }
     
@@ -99,7 +103,7 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
     });
 
     it("closing the second cycle", async function(){
-        let kpac = await KittyPartyAuction.deployed(); //kitty party contract instance
+        let kpac = await KittyPartyAuction.deployed(); 
 
         let numberOfBids = await kpac.numberOfBidders();
         assert(Math.abs(numberOfBids-2)==0, "2 bids");

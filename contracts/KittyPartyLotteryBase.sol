@@ -21,7 +21,7 @@ contract KittyPartyLotteryBase is KittyPartySequential{
     /// @dev this should be called after the participants are added, and sets up the order of distribution
     function initialLottery()
         public
-        atStage(Stages.InProgress)
+        atStage(Stages.Started)
         restrictedToOwner
         payable
     {

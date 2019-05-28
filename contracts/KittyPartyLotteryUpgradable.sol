@@ -5,52 +5,66 @@ import "./helpers/RestrictedToOwner.sol";
 import "./helpers/ExternalUintArrayStorage.sol";
 import "./helpers/randomizers/IRandomizeRangeToArray.sol";
 
+/**
+    This contract has a randomizer which can be swapped out
+    The storage for the randomized array of winners can also be switched out
+    It determines the winner of a cycle based on lottery done at the onset
+ */
 contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
 {
     address public upgradableRandomizerAddress;
     address public externalStorageAddress;
 
-    constructor (uint _amount, address _randomizer, address _storage) KittyPartyLotteryBase(_amount) public{
-      upgradableRandomizerAddress = _randomizer;
-      externalStorageAddress = _storage;
+    /// @dev Constructor
+    /// @param _amount required contribution value in wei
+    /// @param _randomizer address of a contract which implements IRandomizeRageToArray
+    /// @param _storage address of storage for the result of the randomization
+    constructor(uint _amount, address _randomizer, address _storage) KittyPartyLotteryBase(_amount) public {
+        upgradableRandomizerAddress = _randomizer;
+        externalStorageAddress = _storage;
     }
 
-    function getTypeOfRandomizer() public view returns(string memory){
-      IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
-      return randomizer.getRandomizerName();
+    /// @dev used to get a descriptor helpful in testing
+    function getTypeOfRandomizer() public view returns(string memory) {
+        IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
+        return randomizer.getRandomizerName();
     }
 
+    /// @dev return the next winner index, based on the random pick stored in externalStorageAddress
     function doGetWinnerIndex() internal returns (uint){
-      ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
-      return localReferenceToStorage.getAt(nextWinnerIndex);
+        ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+        return localReferenceToStorage.getAt(nextWinnerIndex);
     }
 
+    /// @dev abstract function implementation, that makes the randomizer fill out the results
     function doInitialLottery() internal{
-      IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
-      randomizer.randomize(numberOfParticipants, externalStorageAddress);
+        IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
+        randomizer.randomize(numberOfParticipants, externalStorageAddress);
     }
 
-    function updateRandomizer(address _randomizer) public restrictedToOwner{
-      // require(currentCycleNumber == 1,"updating the randomizer only makes sense before the initial lottery");
+    /// @dev change the pointer to another randomizer
+    function updateRandomizer(address _randomizer) public restrictedToOwner {
+        // require(currentCycleNumber == 1,"updating the randomizer only makes sense before the initial lottery");
 
-      //the legacy randomizer need not be deleted
-      upgradableRandomizerAddress = _randomizer;
+        //the legacy randomizer need not be deleted
+        upgradableRandomizerAddress = _randomizer;
 
-      //reset the flag so that the lottery can be done again
-      hasHappenedOnce = false;
+        //reset the flag so that the lottery can be done again
+        hasHappenedOnce = false;
     }
 
-    function enumerateOrderOfWinners() public view returns(uint[] memory){
-      ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
-      return localReferenceToStorage.getArray();
+    /// @dev this will give a list of what the randomizer did, meant to ease developmnet
+    function enumerateOrderOfWinners() public view returns(uint[] memory) {
+        ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+        return localReferenceToStorage.getArray();
     }
 
-    function orderOfWinnersLength() public view returns(uint){
-      ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
-      return localReferenceToStorage.getLength();
+    /// @dev the length of the array of the winners order, meant to ease testing
+    function orderOfWinnersLength() public view returns(uint) {
+        ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+        return localReferenceToStorage.getLength();
     }
 
-    function doWithdrawMyRefund() internal{
-        //nothing happens in this case
-    }
+    /// @dev abstract function implementation, nothing here though
+    function doWithdrawMyRefund() internal {}
 }

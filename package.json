@@ -1,0 +1,26 @@
+{
+  "name": "kitty_party",
+  "version": "1.0.0",
+  "description": "A Kitty Party is an informal savings scheme, popular in the Indian sub continent, though there are variants in other parts of the world.",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "dotenv": "^8.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adeelhasan/kitty_party.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adeelhasan/kitty_party/issues"
+  },
+  "homepage": "https://github.com/adeelhasan/kitty_party#readme"
+}

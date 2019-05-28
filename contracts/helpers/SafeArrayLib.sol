@@ -1,7 +1,7 @@
 pragma solidity >=0.4.21 <0.6.0;
 
 // basic library that checks array bounds when doing an operation
-library SafeArrayLib{
+library SafeArrayLib {
 
     /// @dev add to an uint array
     /// @param self Stored array from contract

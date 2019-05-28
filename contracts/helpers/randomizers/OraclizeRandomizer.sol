@@ -11,7 +11,7 @@ contract OraclizeRandomizer is IRandomizeRangeToArray, usingOraclize{
 
     event OraclizeResponseReceived(bytes32 id);
 
-    constructor(address _storage) public{
+    constructor (address _storage) public {
       storageLocationAddress = _storage;
     }
 

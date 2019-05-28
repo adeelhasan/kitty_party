@@ -35,7 +35,7 @@ contract("KittyPartySequential", function(accounts){
         await kps.closeParticipants();
         let currentStatus = await kps.getStage();
 
-        assert(currentStatus == 1, "stage should be in Progress");
+        assert(currentStatus == 1, "stage should be Started");
     });
 
     it("once in progress, should not allow another new participant", async function(){

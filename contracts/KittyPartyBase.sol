@@ -2,11 +2,11 @@ pragma solidity >=0.4.21 <0.6.0;
 
 import "./helpers/RestrictedToOwner.sol";
 import "./helpers/CircuitBreaker.sol";
-import "./KittyPartyState.sol";
+import "./helpers/ThreeStages.sol";
 
 
-// base contract for all the variants of a kitty savings scheme
-contract KittyPartyBase is CircuitBreaker, KittyPartyState {
+// base contract for all the variants of a kitty party savings scheme
+contract KittyPartyBase is CircuitBreaker, ThreeStages {
 
 	struct KittyParticipant{
 		bool exists;  //whether the structure actually exists or is valid, since the default is always false
@@ -50,47 +50,51 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 	}
 
 	event ParticipantAdded(address indexed _participant_address);
-	event WinnerChosenForCycle(address winner, uint cycleNumber);
+	event WinnerChosenForCycle(address indexed winner, uint cycleNumber);
 	event KittyFinished();
 
+    /// @dev Constructor
+    /// @param _amount uint amount in wei as the precise participant constribution
 	constructor(uint _amount) public {
-		require(_amount > 0,"send some value, cannot make a kitty with zero value");
+		require(_amount > 0,"set a non zero value for the kitty amount");
 		require(_amount <= MAX_CONTRIBUTION, "value is capped to control risk");
-		stage = Stages.Open;
 		amountPerParticipant = _amount;
+        //stage = Stages.NotStarted;
 	}
 
+	/// @dev fallback this will add a participant, only if they send in the correct amount, and also if
+	///      the kitty party is at a particular point where participants can still be allowed in, and other conditions
 	function ()
         external
         payable
         notAtStage(Stages.Finished)
         notInEmergency
     {
-		require(participants[msg.sender].hasContributedThisCycle != true, "has already funded this cycle");
-		require(msg.value == amountPerParticipant, "the correct amount should be sent");
-		require(numberOfParticipants <= MAX_PARTICIPANTS, "max participants reached, cannot take more");
+        require(participants[msg.sender].hasContributedThisCycle != true, "has already funded this cycle");
+        require(msg.value == amountPerParticipant, "the correct amount should be sent");
+        require(numberOfParticipants <= MAX_PARTICIPANTS, "max participants reached, cannot take more");
 
-		//participant does not exist, so add
-		if (!participants[msg.sender].exists)
-		{
-			require(stage == Stages.Open, "kitty is not open for more participants to be added");
+        //participant does not exist, so add
+        if (!participants[msg.sender].exists)
+        {
+            require(stage == Stages.NotStarted, "still at the point to add participants");
 
-			participants[msg.sender] = KittyParticipant(true,true,0,false);
-			participant_addresses.push(msg.sender);
+            participants[msg.sender] = KittyParticipant(true,true,0,false);
+            participant_addresses.push(msg.sender);
 
-			numberOfParticipants++;
+            numberOfParticipants++;
 
-			emit ParticipantAdded(msg.sender);
-		}
-		else
-			participants[msg.sender].hasContributedThisCycle = true;
+            emit ParticipantAdded(msg.sender);
+        }
+        else
+            participants[msg.sender].hasContributedThisCycle = true;
 	}
 
     /// @dev this completes the setup phase of the kitty party, and progresses the state forward
 	function closeParticipants()
         external
         restrictedToOwner
-        atStage(Stages.Open)
+        atStage(Stages.NotStarted)
     {
 		nextStage();
 		currentCycleNumber = 1;
@@ -115,10 +119,11 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 		}
 	}
 
+    /// @dev utility function to see if everyone has sent in the contribution for this cycle
 	function hasEveryoneContributedThisCycle()
         public
         view
-        atStage(Stages.InProgress)
+        atStage(Stages.Started)
         returns (bool)
 	{
 		for (uint i = 0; i<numberOfParticipants; i++){
@@ -129,6 +134,7 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 		return true;
 	}
 
+    /// @dev can be called at any point to take out any amount you may have won
 	function withdrawMyWinnings() public notInEmergency{
 		if ((participants[msg.sender].cycleNumberWon > 0) && !participants[msg.sender].hasWithdrawnWinnings){
 			participants[msg.sender].hasWithdrawnWinnings = true;
@@ -137,11 +143,12 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 		}
 	}
 
+    /// @dev called by the kitty admin to finish a cycle
 	function completeCycle()
 		public
 		notInEmergency
 		restrictedToOwner
-		atStage(Stages.InProgress)
+		atStage(Stages.Started)
     {
 		require(hasEveryoneContributedThisCycle(),"Everyone should have contributed by now");
 
@@ -149,8 +156,10 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 		address winner = doGetWinner();
 		participants[winner].cycleNumberWon = currentCycleNumber;
 
+        //chance for a descendant to cleanup internal state
 		doCycleCompleted();
 
+        //reset for the next  cycle
 		for (uint i = 0; i<numberOfParticipants; i++)
 		{
 			participants[participant_addresses[i]].hasContributedThisCycle = false;
@@ -168,12 +177,13 @@ contract KittyPartyBase is CircuitBreaker, KittyPartyState {
 	}
 
 	//abstract methods
-	//sub classes will define how the winner of the current cycle is chosen
+
+	/// @dev sub classes will define how the winner of the current cycle is chosen
 	function doGetWinner() internal returns (address);
 
-	//chance for subclasses to regorganize internal state on completion of a cycle
+	/// @dev chance for subclasses to regorganize internal state on completion of a cycle
 	function doCycleCompleted() internal;
 
-	//chance to do subclass specific action for refund
+	/// @dev chance to do subclass specific action for refund
 	function doWithdrawMyRefund() internal;
 }
