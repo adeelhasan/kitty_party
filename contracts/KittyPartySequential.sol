@@ -14,7 +14,7 @@ contract KittyPartySequential is KittyPartyBase
     constructor(uint _amount) KittyPartyBase(_amount) public {}
 
     /// @dev get the winner
-    /// @return address 
+    /// @return address account of the winner
     function doGetWinner() internal returns (address){
         address winner = participant_addresses[nextWinnerIndex];
         return winner;

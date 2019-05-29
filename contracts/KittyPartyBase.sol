@@ -108,8 +108,8 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 	}
 
     /// @dev the address of the participant at the index, order of array is the order of adding to array
-    /// @param _index
-    /// @return address
+    /// @param _index offset into array
+    /// @return address account of the participant
     function participantAt(uint _index) public view returns(address) {
         return participant_addresses[_index];
     }
