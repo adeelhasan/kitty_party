@@ -45,7 +45,7 @@ contract ExternalUintArrayStorage {
 
     /// @dev gets array length
     /// @param _index zero based offset in the array
-    /// @param return uint value at the offset
+    /// @return uint value at the offset
     function getAt(uint _index) public view returns(uint) {
         return uintArray.getAt(_index);
     }
