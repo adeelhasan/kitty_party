@@ -52,8 +52,8 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     }
 
     /// @dev the address of the participant in the winners array
-    /// @param _index 
-    /// @return address
+    /// @param _index offset into the array
+    /// @return address the account that is the winner
     function winnerAt(uint _index) public view returns (address) {
         ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
         uint participant_index = localReferenceToStorage.getAt(_index);

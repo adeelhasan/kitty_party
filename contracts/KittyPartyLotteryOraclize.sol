@@ -13,7 +13,7 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
 
     event OraclizeResponseReceived(bytes32 id);
 
-    constructor (uint _amount) KittyPartyLotteryBase(_amount) public{}
+    constructor(uint _amount) KittyPartyLotteryBase(_amount) public {}
 
     /// @dev process the result from Oraclize
     /// @param myid this is used as a soft check in case something else may call this method
@@ -36,8 +36,8 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
     }
 
     /// @dev the address of the participant in the winners array
-    /// @param _index 
-    /// @return address
+    /// @param _index offset into the array
+    /// @return address account of participant corresponding to the index
     function winnerAt(uint _index) public returns (address) {
         uint participant_index = randomlySelectedWinners[_index];
         return participant_addresses[participant_index];
@@ -55,11 +55,11 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
     }
 
     /// @dev abstract function implemented here, will initiate the lottery
-    function doInitialLottery() internal{
+    function doInitialLottery() internal {
         string memory query_string = strConcat("RandomInteger[",uint2str(numberOfParticipants-1),",",uint2str(numberOfParticipants*5),"]");
         oraclize_query("WolframAlpha", query_string);
     }
 
     /// @dev abstract function implemented here, nothing happens in this case
-    function doWithdrawMyRefund() internal{}
+    function doWithdrawMyRefund() internal {}
 }
