@@ -35,6 +35,14 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
         emit OraclizeResponseReceived(myid);
     }
 
+    /// @dev the address of the participant in the winners array
+    /// @param _index 
+    /// @return address
+    function winnerAt(uint _index) public returns (address) {
+        uint participant_index = randomlySelectedWinners[_index];
+        return participant_addresses[participant_index];
+    }
+
     /// @dev the length of the array of the winners order, meant to ease testing
     function orderOfWinnersLength() public view returns(uint) {
         return randomlySelectedWinners.length;

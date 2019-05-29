@@ -45,5 +45,16 @@ contract("KittyPartyLotteryUpgradable", function(accounts){
 
         assert(Math.abs(winnersOrderArrayLength-numberOfParticipants)==0, "should have selected an ordering as many as the participants");
     });
+
+    it("the first randomly selected winner was the one who won the first round", async function(){
+        let kplottery = await KittyPartyLotteryUpgradable.deployed();
+
+        var expectedCycleWinner;
+        kplottery.winnerAt(0).then((r)=>{expectedCycleWinner=r;});
+        var result = await kplottery.completeCycle();
+        var actualWinner = result.logs[0].args.winner;
+
+        assert(expectedCycleWinner==actualWinner,"The expected winner");
+    });
 })
 

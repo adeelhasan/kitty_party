@@ -32,8 +32,6 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
 
     /// @dev change the pointer to another randomizer
     function updateRandomizer(address _randomizer) public restrictedToOwner {
-        require(currentCycleNumber == 1,"updating the randomizer only makes sense before the initial lottery");
-
         //the legacy randomizer need not be deleted
         upgradableRandomizerAddress = _randomizer;
 
@@ -51,6 +49,15 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     function orderOfWinnersLength() public view returns(uint) {
         ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
         return localReferenceToStorage.getLength();
+    }
+
+    /// @dev the address of the participant in the winners array
+    /// @param _index 
+    /// @return address
+    function winnerAt(uint _index) public view returns (address) {
+        ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+        uint participant_index = localReferenceToStorage.getAt(_index);
+        return participant_addresses[participant_index];
     }
 
     /// @dev return the next winner index, based on the random pick stored in externalStorageAddress

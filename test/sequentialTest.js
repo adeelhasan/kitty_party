@@ -86,26 +86,27 @@ contract("KittyPartySequential", function(accounts){
     it("closing the first cycle, should let the first participant win, and collect the kitty", async function(){
         let kpac = await KittyPartySequential.deployed(); //kitty party contract instance
 
+        var result = await kpac.completeCycle({from: accounts[0], gas: 200000});
+        var winnerAddress = result.logs[0].args.winner;
+
+        assert(accounts[0] == winnerAddress, "The first participant won the first cycle");
+    });
+
+    it("the winner of the first cycle can collect the kitty", async function() {
+        let kpac = await KittyPartySequential.deployed(); //kitty party contract instance
+
         let account0BalanceBefore = await web3.eth.getBalance(accounts[0]);
-        let account1BalanceBefore = await web3.eth.getBalance(accounts[1]);
-        let account2BalanceBefore = await web3.eth.getBalance(accounts[2]);
-
-        await kpac.completeCycle({from: accounts[0], gas: 200000});
         await kpac.withdrawMyWinnings({from: accounts[0]});
-
         let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
-        let account1BalanceAfter = await web3.eth.getBalance(accounts[1]);
-        let account2BalanceAfter = await web3.eth.getBalance(accounts[2]);
 
         //the delta should have been 3 ether, but since accounts[0] expends gas, we approximate
         let expectedBalanceDelta = new web3.utils.BN(web3.utils.toWei('2.8','ether'))
 
         assert(Math.abs(account0BalanceAfter - account0BalanceBefore) > expectedBalanceDelta, "kitty amount went to first account");
-        assert(Math.abs(account2BalanceAfter - account2BalanceBefore) == 0, "kitty amount didnt go to second one");
-        assert(Math.abs(account1BalanceAfter - account1BalanceBefore) == 0, "kitty amount didnt go to third one");
     });
 
-    it("closing the second and third cycles should finish the kitty", async function(){
+
+    it("closing the second and third cycles should finish the kitty", async function() {
         let kpac = await KittyPartySequential.deployed(); //kitty party contract instance
 
         let account0BalanceBefore = await web3.eth.getBalance(accounts[0]);

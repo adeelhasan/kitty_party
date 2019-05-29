@@ -6,13 +6,13 @@ import "./KittyPartySequential.sol";
 contract KittyPartyLotteryBase is KittyPartySequential{
     bool internal hasHappenedOnce;  //used to track if the lottery has been done or not
 
-    constructor (uint _amount) KittyPartySequential(_amount) public{}
+    constructor(uint _amount) KittyPartySequential(_amount) public {}
 
     //log that the order has been set by a lottery
     event InitialLotteryDone();
 
     /// @dev override of the base class, gets the winner for this cycle
-    function getWinner() internal returns (address){
+    function doGetWinner() internal returns (address) {
         require(hasHappenedOnce, "the random distribution needs to have been initialized");
         uint randomWinnerIndex = doGetWinnerIndex();
         return participant_addresses[randomWinnerIndex];

@@ -48,7 +48,7 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 		_;
 	}
 
-	event ParticipantAdded(address indexed _participant_address);
+	event ParticipantAdded(address indexed participant);
 	event WinnerChosenForCycle(address indexed winner, uint cycleNumber);
 	event KittyFinished();
 
@@ -107,6 +107,13 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 			return (false,false,0,false);
 	}
 
+    /// @dev the address of the participant at the index, order of array is the order of adding to array
+    /// @param _index
+    /// @return address
+    function participantAt(uint _index) public view returns(address) {
+        return participant_addresses[_index];
+    }
+
     /// @dev in the event of an emergency, get your money out for this particular cycle
 	function withdrawMyRefund() public inEmergency{
 		if (participants[msg.sender].hasContributedThisCycle){
@@ -132,14 +139,14 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 		return true;
 	}
 
-    /// @dev can be called at any point to take out any amount you may have won
+    /// @dev can be called at any point to take out the amount that was won
 	function withdrawMyWinnings() public notInEmergency{
 		if ((participants[msg.sender].cycleNumberWon > 0) && !participants[msg.sender].hasWithdrawnWinnings){
 			participants[msg.sender].hasWithdrawnWinnings = true;
 			uint amountToTransfer = numberOfParticipants * amountPerParticipant;
 			msg.sender.transfer(amountToTransfer);
 		}
-	}
+	}    
 
     /// @dev called by the kitty admin to finish a cycle
 	function completeCycle()
