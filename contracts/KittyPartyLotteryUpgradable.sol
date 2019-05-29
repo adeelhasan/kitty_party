@@ -30,21 +30,9 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
         return randomizer.getRandomizerName();
     }
 
-    /// @dev return the next winner index, based on the random pick stored in externalStorageAddress
-    function doGetWinnerIndex() internal returns (uint){
-        ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
-        return localReferenceToStorage.getAt(nextWinnerIndex);
-    }
-
-    /// @dev abstract function implementation, that makes the randomizer fill out the results
-    function doInitialLottery() internal{
-        IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
-        randomizer.randomize(numberOfParticipants, externalStorageAddress);
-    }
-
     /// @dev change the pointer to another randomizer
     function updateRandomizer(address _randomizer) public restrictedToOwner {
-        // require(currentCycleNumber == 1,"updating the randomizer only makes sense before the initial lottery");
+        require(currentCycleNumber == 1,"updating the randomizer only makes sense before the initial lottery");
 
         //the legacy randomizer need not be deleted
         upgradableRandomizerAddress = _randomizer;
@@ -63,6 +51,18 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     function orderOfWinnersLength() public view returns(uint) {
         ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
         return localReferenceToStorage.getLength();
+    }
+
+    /// @dev return the next winner index, based on the random pick stored in externalStorageAddress
+    function doGetWinnerIndex() internal returns (uint) {
+        ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
+        return localReferenceToStorage.getAt(nextWinnerIndex);
+    }
+
+    /// @dev abstract function implementation, that makes the randomizer fill out the results
+    function doInitialLottery() internal {
+        IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
+        randomizer.randomize(numberOfParticipants, externalStorageAddress);
     }
 
     /// @dev abstract function implementation, nothing here though

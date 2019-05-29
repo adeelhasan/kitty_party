@@ -1,6 +1,5 @@
 pragma solidity >=0.4.21 <0.6.0;
 
-import "./helpers/RestrictedToOwner.sol";
 import "./helpers/CircuitBreaker.sol";
 import "./helpers/ThreeStages.sol";
 
@@ -59,7 +58,6 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 		require(_amount > 0,"set a non zero value for the kitty amount");
 		require(_amount <= MAX_CONTRIBUTION, "value is capped to control risk");
 		amountPerParticipant = _amount;
-        //stage = Stages.NotStarted;
 	}
 
 	/// @dev fallback this will add a participant, only if they send in the correct amount, and also if
