@@ -34,7 +34,7 @@
 		  <p>Cycles Completed : <input id="cyclesCompleted" type="text"> </p>
 		  <p>Total Participants : <input id="numberOfParticipants" type="text"> </p>
 		  
-		  <p>Contribution Needed : <input id="contribution" type="text"> </p>
+		  <p>Contribution Needed : <input id="contribution" type="text"> </p> <button id="contributeToCycle">Contribute to this Cycle</button>
 		  <hr>
 
 		 <label for="name" class="col-lg-2 control-label"><h3>Transfer</h3></label>
@@ -54,18 +54,25 @@
 	<script>
 
 		function refreshContractInfo(){
+			console.log('updating UI');
+
 			$('#contractAddress').val(window.myContract._address);
 			myContract.methods.numberOfParticipants().call().then((result)=>{
 				$('#numberOfParticipants').val(result);
 			});
-			myContract.methods.cyclesCompleted().call().then((result)=>{
+			myContract.methods.currentCycleNumber().call().then((result)=>{
 				$('#cyclesCompleted').val(result);
 			});
 			myContract.methods.getMyStatus().call({from: currentAccount}).then((result)=>{
+				console.log(result);
 				$('#hasParticipated').val(result[0]);
 			});
-			myContract.methods.amountPerParticipant().call({from: currentAccount}).then((result)=>{
+			myContract.methods.amountPerParticipant().call().then((result)=>{
 				$('#contribution').val(result);
+			});
+
+			myContract.methods.owner().call().then(function(result){
+				$('#isOwner').val(result == $('#Account').val());
 			});
 
 		}
@@ -75,52 +82,36 @@
 		var currentAccount;
 	
 		$(document).ready(function() {
-			console.log( "ready!" );
 			
 			if (typeof web3 !== 'undefined') {
-				console.log('setting to metamask');
 				web3 = new Web3(web3.currentProvider);
 			} else {
-					// set the provider you want from Web3.providers
-					//fall back to ganache
-				web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+				//fall back to testrpc
+				web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 			}
 
-			/* Get Node Info */
+			currentAccount = web3.eth.defaultAccount;
+			web3.eth.getAccounts().then((accounts) => {
+				currentAccount = accounts[0];
+				$('#Account').val(currentAccount);
+			});
 
 			window.ethereum.on('accountsChanged', function(a,n) {
-				//need to refresh the UI
 				currentAccount = a;
 				$('#Account').val(a);
-				console.log(a);
+				refreshContractInfo();
 			});
 
-			//this is the current contract address
-			//when a new contract is made, it would need to be tracked somehow, maybe in a cookie?
-			//the directory contract can be fixed as per the 
-			//the 
-			var myContractAddress = "0xF1C295Dc2523FF68D7f32587ba293ba5A7acbEAe";
-			var myContractAbi = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"closeParticipants","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"ipfsPhotoHash","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"status","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"cyclesCompleted","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getMyStatus","outputs":[{"name":"","type":"bool"},{"name":"","type":"bool"},{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"bids","outputs":[{"name":"amount","type":"uint256"},{"name":"exists","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_address","type":"address"}],"name":"removeParticipant","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"numberOfParticipants","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"amountPerParticipant","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"triggerLogEntry","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"chooseWinnerAndDistribute","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"hasEveryoneContributedThisCycle","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"string"},{"name":"_directoryContract","type":"address"}],"name":"registerKitty","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"winningBidIndex","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"numberOfBidders","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_amount","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_participant_address","type":"address"}],"name":"ParticipantAdded","type":"event"},{"anonymous":false,"inputs":[],"name":"KittyFinished","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"winner","type":"address"},{"indexed":false,"name":"cycleNumber","type":"uint256"}],"name":"WinnerChosenForCycle","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"msgSender","type":"address"},{"indexed":false,"name":"label","type":"string"}],"name":"LogGotToHere","type":"event"},{"constant":false,"inputs":[],"name":"receiveBid","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"getMyBid","outputs":[{"name":"","type":"uint256"},{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"}];
-
-			window.myContract = new window.web3.eth.Contract (myContractAbi,myContractAddress);
-
-			currentAccount = web3.eth.coinbase;
-
-			//myContract.numberOfParticipants().call
-			refreshContractInfo();
-			
-			/*Get Balance */
-			web3.eth.getAccounts(function(error, accounts) {
-				if(error) {
-					console.log(error);
-				}
-				$('#Account').val(accounts[0]);
-				web3.eth.getBalance(web3.eth.coinbase).then(function(result){
-					console.log( "Balance : " ,web3.utils.fromWei(result, 'ether'));
-					$('#Balance').val(web3.utils.fromWei(result, 'ether'));
-				});
+			//using ropsten, can use ENS for contract address
+			var myContractAddress = "";//"0x3d016FDAC079A256c9C825f1AdAe9332753bB85b";
+			var myContractAbi = [{"constant":true,"inputs":[{"name":"_index","type":"uint256"}],"name":"participantAt","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x065bab2d"},{"constant":false,"inputs":[],"name":"closeParticipants","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x07b45900"},{"constant":false,"inputs":[],"name":"completeCycle","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x3f90dc77"},{"constant":true,"inputs":[],"name":"getMyStatus","outputs":[{"name":"","type":"bool"},{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x52e3b413"},{"constant":false,"inputs":[],"name":"setCircuitBreakerEmergencyFinished","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x632e3b1c"},{"constant":false,"inputs":[],"name":"withdrawMyWinnings","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x73e45cd7"},{"constant":true,"inputs":[],"name":"numberOfParticipants","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x7417040e"},{"constant":true,"inputs":[],"name":"amountPerParticipant","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x8c8576f0"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x8da5cb5b"},{"constant":false,"inputs":[],"name":"setCirctuitBreakerToRedAlert","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0xba2b2a79"},{"constant":true,"inputs":[],"name":"hasEveryoneContributedThisCycle","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function","signature":"0xd57f4071"},{"constant":true,"inputs":[],"name":"currentCycleNumber","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function","signature":"0xdacbafd2"},{"constant":false,"inputs":[],"name":"setCircuitBreakerToStopped","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0xe26f4394"},{"constant":false,"inputs":[],"name":"withdrawMyRefund","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0xe4a908f3"},{"constant":true,"inputs":[],"name":"getStage","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function","signature":"0xfcaa7664"},{"inputs":[{"name":"_amount","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor","signature":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"participant","type":"address"}],"name":"ParticipantAdded","type":"event","signature":"0x31d3ac54da09405b02d1de0ee0de648de637fbdc111123be0d7fc31f2a544c0b"},{"anonymous":false,"inputs":[{"indexed":true,"name":"winner","type":"address"},{"indexed":false,"name":"cycleNumber","type":"uint256"}],"name":"WinnerChosenForCycle","type":"event","signature":"0xe86f2b9d793e9cec3f764e0fbdc1bf48ebd2a4cc0c8c68e7a60658b494157e3a"},{"anonymous":false,"inputs":[],"name":"KittyFinished","type":"event","signature":"0xb38262bd1c1ed6fd273db8cbd6f87b25558634ff8917853989682ccc37d5af30"},{"anonymous":false,"inputs":[],"name":"CircuitBreakerEmergency","type":"event","signature":"0x5891f09bd6472fbdd379cc4abb25ea990faf3ac0adad4630c1b10ce10c49af95"},{"anonymous":false,"inputs":[],"name":"CircuitBreakerInRedAlert","type":"event","signature":"0xd3a9ac3189a365fe6b74fd6c9a70d19eb6dc4085de6de2917a7825190abc55a6"},{"anonymous":false,"inputs":[],"name":"CircuitBreakerEmergencyEnded","type":"event","signature":"0x79e6b5d4a935805b339ed95779530b9cb9a710eb7941f9954435caece8c63b77"}];
+			web3.eth.ens.getAddress('sequential.kittyparty.test').then((address)=>{
+				window.myContract = new window.web3.eth.Contract (myContractAbi,address);
+				refreshContractInfo();
 			});
-			
+			//else, read in from the artifact json files
+
+						
 			$('#checkBalance').click(function() {
 			    var _account = $('#Account').val();
 				web3.eth.getBalance(_account).then(function(result){
@@ -129,12 +120,10 @@
 				});
 			});
 			
-			
 			$('#checkOwnership').click(function() {
 			    var _account = $('#Account').val();
 				window.myContract.methods.owner().call().then(function(result){
-					console.log( "Check Ownership Result : " + result);
-					$('#isOwner').val(result.toLowerCase() == $('#Account').val().toLowerCase());
+					$('#isOwner').val(result == $('#Account').val());
 				});
 			});
 
@@ -145,6 +134,21 @@
 					console.log( "see if the response came back");
 				});
 			});
+
+			$('#contributeToCycle').click(function() {
+			    var _account = $('#Account').val();
+				var _from = _account;
+			    var _to = myContractAddress;
+				var _Amount = $('#Amount').val();
+				var txnObject = {
+					"from":_from,
+					"gas": 200000,
+					"to": _to,
+					"value": $('#contribution').val()};
+				web3.eth.sendTransaction(txnObject).then(function(result){
+				});
+			});
+
 			
 			/* Transfer */
 			$('#Transfer').click(function() {
@@ -155,6 +159,7 @@
 				var txnObject = {
 					"from":_from,
 					"to": _to,
+					"gas": 200000,
 					"value": web3.utils.toWei(_Amount,'ether'),
 					// "gas": 21000,         (optional)
 					// "gasPrice": 4500000,  (optional)
@@ -183,31 +188,31 @@
 				
 			});
 
-			myContract.events.LogGotToHere({
-				filter: {}, // Using an array means OR: e.g. 20 or 23
-				fromBlock: 0
-			}, (error, event) => { console.log(event); })
-			.on('data', (event) => {
-				console.log(event); // same results as the optional callback above
-			})
-			.on('changed', (event) => {
-				// remove event from local database
-			})
-			.on('error', console.error);
+			// myContract.events.LogGotToHere({
+			// 	filter: {}, // Using an array means OR: e.g. 20 or 23
+			// 	fromBlock: 0
+			// }, (error, event) => { console.log(event); })
+			// .on('data', (event) => {
+			// 	console.log(event); // same results as the optional callback above
+			// })
+			// .on('changed', (event) => {
+			// 	// remove event from local database
+			// })
+			// .on('error', console.error);
 
 			
-			myContract.events.ParticipantAdded({
-				filter: {}, // Using an array means OR: e.g. 20 or 23
-				fromBlock: 0
-			}, (error, event) => { console.log(event); })
-			.on('data', (event) => {
-				console.log(event); 
-				// update the UI here
-			})
-			.on('changed', (event) => {
-				// remove event from local database
-			})
-			.on('error', console.error);
+			// myContract.events.ParticipantAdded({
+			// 	filter: {}, // Using an array means OR: e.g. 20 or 23
+			// 	fromBlock: 0
+			// }, (error, event) => { console.log(event); })
+			// .on('data', (event) => {
+			// 	console.log(event); 
+			// 	// update the UI here
+			// })
+			// .on('changed', (event) => {
+			// 	// remove event from local database
+			// })
+			// .on('error', console.error);
 
 		});
 	

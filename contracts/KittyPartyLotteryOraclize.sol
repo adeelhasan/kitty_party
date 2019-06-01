@@ -37,10 +37,9 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
 
     /// @dev the address of the participant in the winners array
     /// @param _index offset into the array
-    /// @return address account of participant corresponding to the index
-    function winnerAt(uint _index) public returns (address) {
-        uint participant_index = randomlySelectedWinners[_index];
-        return participant_addresses[participant_index];
+    /// @return address of participant corresponding to the index
+    function winnerAt(uint _index) public view returns (address) {
+        return participant_addresses[randomlySelectedWinners[_index]];
     }
 
     /// @dev the length of the array of the winners order, meant to ease testing
@@ -57,7 +56,7 @@ contract KittyPartyLotteryOraclize is usingOraclize, KittyPartyLotteryBase
     /// @dev abstract function implemented here, will initiate the lottery
     function doInitialLottery() internal {
         string memory query_string = strConcat("RandomInteger[",uint2str(numberOfParticipants-1),",",uint2str(numberOfParticipants*5),"]");
-        oraclize_query("WolframAlpha", query_string);
+        oraclize_query("WolframAlpha", query_string, 500000);
     }
 
     /// @dev abstract function implemented here, nothing happens in this case

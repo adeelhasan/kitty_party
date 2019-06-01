@@ -146,7 +146,7 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 			uint amountToTransfer = numberOfParticipants * amountPerParticipant;
 			msg.sender.transfer(amountToTransfer);
 		}
-	}    
+	}
 
     /// @dev called by the kitty admin to finish a cycle
 	function completeCycle()

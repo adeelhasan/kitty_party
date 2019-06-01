@@ -371,9 +371,10 @@ contract usingOraclize {
 
     function __callback(bytes32 _myid, string memory _result) public {
         __callback(_myid, _result, new bytes(0));
+        oraclize_network_name = oraclize_network_name;
     }
 
-    function __callback(bytes32 _myid, string memory _result, bytes memory _proof) public {
+    function __callback(bytes32 _myid, string memory _result, bytes memory _proof) public pure {
       return;
       _myid; _result; _proof; // Silence compiler warnings
     }
