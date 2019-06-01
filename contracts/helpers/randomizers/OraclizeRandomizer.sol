@@ -29,12 +29,12 @@ contract OraclizeRandomizer is IRandomizeRangeToArray, usingOraclize{
                   currentData.add(uint(uint8(stringInBytes[i])-48));
             }
           }
-        }
+       }
 
         emit OraclizeResponseReceived(myid);
     }
 
-    function randomize(uint numberToSelect, address _arrayStorage) external{
+    function randomize(uint numberToSelect, address _arrayStorage) external {
         storageLocationAddress = _arrayStorage;
 
         //the oraclize query returns x random numbers in a range of y. however these are not

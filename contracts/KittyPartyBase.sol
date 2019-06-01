@@ -60,9 +60,13 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 		amountPerParticipant = _amount;
 	}
 
-	/// @dev fallback this will add a participant, only if they send in the correct amount, and also if
-	///      the kitty party is at a particular point where participants can still be allowed in, and other conditions
-	function ()
+	/// @dev fallback simply reverts to restrict how funds come in
+	function () external {
+		revert("can only add funds when participating, use addParticipant");
+	}
+
+	/// @dev fallback this will add a participant, only if they send in the correct amount
+	function addParticipant()
         external
         payable
         notAtStage(Stages.Finished)

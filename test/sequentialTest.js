@@ -2,25 +2,26 @@
 var KittyPartySequential = artifacts.require("./KittyPartySequential.sol");
 
 contract("KittyPartySequential", function(accounts){
-    var kps; //kitty party contract instance
 
+    let kittyContract;
+    beforeEach(async function () {
+        kittyContract = await KittyPartySequential.deployed();         
+      });
+    
     it("after setup, the balance should be 3", async function(){
-        let kps = await KittyPartySequential.deployed(); //kitty party contract instance
-
         //put in three participants
-        await web3.eth.sendTransaction({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000, to: kps.address});
-        await web3.eth.sendTransaction({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000, to: kps.address});
-        await web3.eth.sendTransaction({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000, to: kps.address});
-        var contractBalance = await web3.eth.getBalance(kps.address);
+        await kittyContract.addParticipant({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000});
+        await kittyContract.addParticipant({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000});
+        await kittyContract.addParticipant({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000});
+        var contractBalance = await web3.eth.getBalance(kittyContract.address);
         
         assert(contractBalance == new web3.utils.BN(web3.utils.toWei('3','ether')), "contract has received three participants");
     });
 
     it("sending the incorrect amount should get rejected", async function(){
-        let kps = await KittyPartySequential.deployed(); //kitty party contract instance
 
         try{
-            await web3.eth.sendTransaction({from: accounts[3], value: web3.utils.toWei('0.5','ether'), gas: 200000, to: kps.address});
+            await web3.eth.sendTransaction({from: accounts[3], value: web3.utils.toWei('0.5','ether'), gas: 200000, to: kittyContract.address});
         }
         catch(e){
             return true;
@@ -30,19 +31,15 @@ contract("KittyPartySequential", function(accounts){
     });
 
     it("after closing the kitty to participants, the stage should be in progress", async function(){
-        let kps = await KittyPartySequential.deployed(); //kitty party contract instance
-
-        await kps.closeParticipants();
-        let currentStatus = await kps.getStage();
+        await kittyContract.closeParticipants();
+        let currentStatus = await kittyContract.getStage();
 
         assert(currentStatus == 1, "stage should be Started");
     });
 
     it("once in progress, should not allow another new participant", async function(){
-        let kps = await KittyPartySequential.deployed(); //kitty party contract instance
-
         try{
-            await web3.eth.sendTransaction({from: accounts[3], value: web3.utils.toWei('1','ether'), gas: 200000, to: kps.address});
+            await web3.eth.sendTransaction({from: accounts[3], value: web3.utils.toWei('1','ether'), gas: 200000, to: kittyContract.address});
         }
         catch(e){
             return true;
@@ -52,12 +49,10 @@ contract("KittyPartySequential", function(accounts){
     });
 
     it("setting a circuit breaker emergency should reject any contributions to the kitty", async function(){
-        let kps = await KittyPartySequential.deployed();
-
-        await kps.setCircuitBreakerToStopped();
+        await kittyContract.setCircuitBreakerToStopped();
 
         try{
-            await web3.eth.sendTransaction({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000, to: kps.address});
+            await web3.eth.sendTransaction({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000, to: kittyContract.address});
         }
         catch(e){
             return true;
@@ -67,15 +62,13 @@ contract("KittyPartySequential", function(accounts){
     });
 
     it("non owner account should not be able to open the emergency", async function(){
-        let kps = await KittyPartySequential.deployed();
-
         try{
-            await kps.setCircuitBreakerEmergencyFinished({from: accounts[1]});
+            await kittyContract.setCircuitBreakerEmergencyFinished({from: accounts[1]});
         }
         catch(e){
 
             //finish the emergency mode so that we can continue
-            await kps.setCircuitBreakerEmergencyFinished({from: accounts[0]});
+            await kittyContract.setCircuitBreakerEmergencyFinished({from: accounts[0]});
 
             return true;
         }
@@ -84,19 +77,15 @@ contract("KittyPartySequential", function(accounts){
     });
 
     it("closing the first cycle, should let the first participant win, and collect the kitty", async function(){
-        let kpac = await KittyPartySequential.deployed(); //kitty party contract instance
-
-        var result = await kpac.completeCycle({from: accounts[0], gas: 200000});
+        var result = await kittyContract.completeCycle({from: accounts[0], gas: 200000});
         var winnerAddress = result.logs[0].args.winner;
 
         assert(accounts[0] == winnerAddress, "The first participant won the first cycle");
     });
 
     it("the winner of the first cycle can collect the kitty", async function() {
-        let kpac = await KittyPartySequential.deployed(); //kitty party contract instance
-
         let account0BalanceBefore = await web3.eth.getBalance(accounts[0]);
-        await kpac.withdrawMyWinnings({from: accounts[0]});
+        await kittyContract.withdrawMyWinnings({from: accounts[0]});
         let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
 
         //the delta should have been 3 ether, but since accounts[0] expends gas, we approximate
@@ -107,27 +96,25 @@ contract("KittyPartySequential", function(accounts){
 
 
     it("closing the second and third cycles should finish the kitty", async function() {
-        let kpac = await KittyPartySequential.deployed(); //kitty party contract instance
-
         let account0BalanceBefore = await web3.eth.getBalance(accounts[0]);
         let account1BalanceBefore = await web3.eth.getBalance(accounts[1]);
         let account2BalanceBefore = await web3.eth.getBalance(accounts[2]);
 
         //second cycle
-        await web3.eth.sendTransaction({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
-        await web3.eth.sendTransaction({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
-        await web3.eth.sendTransaction({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
+        await kittyContract.addParticipant({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000});
+        await kittyContract.addParticipant({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000});
+        await kittyContract.addParticipant({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000});
 
-        await kpac.completeCycle({from: accounts[0], gas: 200000});
-        await kpac.withdrawMyWinnings({from: accounts[1]});
+        await kittyContract.completeCycle({from: accounts[0], gas: 200000});
+        await kittyContract.withdrawMyWinnings({from: accounts[1]});
 
         //third cycle
-        await web3.eth.sendTransaction({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
-        await web3.eth.sendTransaction({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
-        await web3.eth.sendTransaction({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000, to: kpac.address});
+        await kittyContract.addParticipant({from: accounts[0], value: web3.utils.toWei('1','ether'), gas: 200000});
+        await kittyContract.addParticipant({from: accounts[1], value: web3.utils.toWei('1','ether'), gas: 200000});
+        await kittyContract.addParticipant({from: accounts[2], value: web3.utils.toWei('1','ether'), gas: 200000});
 
-        await kpac.completeCycle({from: accounts[0], gas: 200000});
-        await kpac.withdrawMyWinnings({from: accounts[2]});
+        await kittyContract.completeCycle({from: accounts[0], gas: 200000});
+        await kittyContract.withdrawMyWinnings({from: accounts[2]});
 
         let account0BalanceAfter = await web3.eth.getBalance(accounts[0]);
         let account1BalanceAfter = await web3.eth.getBalance(accounts[1]);
@@ -140,7 +127,7 @@ contract("KittyPartySequential", function(accounts){
         assert(Math.abs(account2BalanceAfter - account2BalanceBefore) > expectedBalanceDelta, "the ether came back to accounts[2]");
         assert(Math.abs(account1BalanceAfter - account1BalanceBefore) > expectedBalanceDelta, "the ether came back to accounts[1]");
 
-        let currentStatus = await kpac.getStage();
+        let currentStatus = await kittyContract.getStage();
 
         assert(currentStatus == 2, "stage should be finished");
     });
