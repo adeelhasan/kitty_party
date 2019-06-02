@@ -21,7 +21,7 @@ contract("KittyPartySequential", function(accounts){
     it("sending the incorrect amount should get rejected", async function(){
 
         try{
-            await web3.eth.sendTransaction({from: accounts[3], value: web3.utils.toWei('0.5','ether'), gas: 200000, to: kittyContract.address});
+            await kittyContract.addParticipant({from: accounts[3], value: web3.utils.toWei('0.5','ether'), gas: 200000});
         }
         catch(e){
             return true;
@@ -30,7 +30,7 @@ contract("KittyPartySequential", function(accounts){
         assert(false, "should not have come here");
     });
 
-    it("after closing the kitty to participants, the stage should be in progress", async function(){
+    it("after closing the kitty to participants, the stage should be Started", async function(){
         await kittyContract.closeParticipants();
         let currentStatus = await kittyContract.getStage();
 
@@ -39,7 +39,7 @@ contract("KittyPartySequential", function(accounts){
 
     it("once in progress, should not allow another new participant", async function(){
         try{
-            await web3.eth.sendTransaction({from: accounts[3], value: web3.utils.toWei('1','ether'), gas: 200000, to: kittyContract.address});
+            await kittyContract.addParticipant({from: accounts[3], value: web3.utils.toWei('1','ether'), gas: 200000});
         }
         catch(e){
             return true;

@@ -1,7 +1,6 @@
 pragma solidity >=0.4.21 <0.6.0;
 
 import "./KittyPartyLotteryBase.sol";
-import "./helpers/RestrictedToOwner.sol";
 import "./helpers/ExternalUintArrayStorage.sol";
 import "./helpers/randomizers/IRandomizeRangeToArray.sol";
 
@@ -31,8 +30,9 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     }
 
     /// @dev change the pointer to another randomizer
+    /// @param _randomizer Address the implementation that will provide randomized array indices
     function updateRandomizer(address _randomizer) public restrictedToOwner {
-        //the legacy randomizer need not be deleted
+        //the legacy randomizer could have a reference saved
         upgradableRandomizerAddress = _randomizer;
 
         //reset the flag so that the lottery can be done again
@@ -40,6 +40,7 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     }
 
     /// @dev this will give a list of what the randomizer did, meant to ease developmnet
+    /// @return an array of uints
     function enumerateOrderOfWinners() public view returns(uint[] memory) {
         ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
         return localReferenceToStorage.getArray();
@@ -61,6 +62,7 @@ contract KittyPartyLotteryUpgradable is KittyPartyLotteryBase
     }
 
     /// @dev return the next winner index, based on the random pick stored in externalStorageAddress
+    /// @return Uint the index value for the winner this cycle
     function doGetWinnerIndex() internal returns (uint) {
         ExternalUintArrayStorage localReferenceToStorage = ExternalUintArrayStorage(externalStorageAddress);
         return localReferenceToStorage.getAt(nextWinnerIndex);

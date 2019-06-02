@@ -1,56 +1,81 @@
-A Kitty Party is an informal savings scheme, popular in the Indian sub continent, though there are variants in other parts of the world.
+### Kitty Party
 
-A group of people who are socially acquainted with each other decide to pool a fixed sum of money every month (or a fixed time period which is usually a month) and physically gather in one place. This pool of money or the "kitty" is then picked up by one person each month. Its traditional for there to be food, and for the meeting place to be a restaurant, particularly if the group is well heeled. Hence the name, Kitty Party. There are as many kitty parties as there are participants, and its customary for the winner of that cycle to foot the bill, or to host it at their own home. The benefit is to be able to save up for a larger payout, and in some communities its a very relevant way to finance a larger purchase.
+A Kitty Party is an informal savings scheme in which participants pool money each month, and a rotating winner gets that aggregated sum. There are as many iterations as participants, and the primary benefit is to be able to access a lump sum amount. There are variations on how the claimant is decided each cycle.  
 
-Who gets the kitty every month is usually based on some kind of a lottery. This lottery can be at the first party, or it can be at each meeting. There are also variants where the participants can place a bid on the kitty, and the winning bid is then split amongst the participants who in fact had foregone the kitty amount for that month. The bids can be placed directly, or the money that would be available if the kitty is won can also be used.
+- more information on kitty parties is in [user stories](USER_STORIES.md)
 
-This scheme is informal in that if one person cannot show up, then they send the money along with a neighbour, or they drop it off the  next day.
-
-User Stories
-
-- someone announces a kitty for a certain amount, and word spreads
-- whoever wants to join, gets in touch with the organizer
-- if there is space, the organizer says they are in
-- the participants have an initial meeting, and everyone brings the designated amount
-- if someone couldnt make the meeting, they would have given the amount to the organizer separately
-- at the first meeting, there is a random draw -- names are written on paper chits and someone (usually a child) will pick these out
-- 
+The primary goal of this project is to model this process, keeping best practices and Consensys final project requirements in mind.
 
 ----------------
 
-Design Decisions
+## Overview of Design
 
-There is a base contract which imposes an overall structure, and descendant classes which implement key abstract functions. This is also called the Template Design Pattern for class design, and in this project the nameing convention is to have the templated functions be prefaced by "do" eg, doInitialLottery
+There is a base contract which imposes an overall structure, and descendant classes which implement key abstract functions. This is also called the Template Design Pattern for class design, and in this project the naming convention is to have the templated functions be prefaced by "do" eg, doGetWinnerIndex
 
 - KittyPartyBase 
   - KittySequential
-  - KittyPartyLotteryBase
-    - KittyPartyLotteryOraclize
-    - KittyPartyLotteryUpgradable
+    - KittyPartyLotteryBase
+      - KittyPartyLotteryOraclize
+      - KittyPartyLotteryUpgradable
   - KittyPartyAuction
 
 <embed an image or thumbnail>
 For a UML diagram of this structure, please see :
 sol2uml
 
--- Use of ENS
--- Use of IPFS? could be with the kitty partry directory concept
--- use of vyper, can it be use with solidity code
+## Installation
 
-testnet addresses
-ropsten:
+npm install truffle_hardware_wallet
+npm install dotenv
 
-testing instructions
+setup your process level environment variables
+
+## Use of a Library
+
+A very basic library that checks array bounds was created. This is then used in the contract that stores a uint array.
+
+
+------------ Stretch Goals ------------
+
+## Upgradable Contract
+
+The lottery for a kitty party needs some form of randomization, and the goal was to be able to upgrade the randomization part of a deployed contract. This then meant that the storage needed to be separated out, and passed to a new randomization. It also meant that there was need for a uniform interface to be able to call the randomization that was currently installed.
+
+<snippet of the upgradabale kitty party>
+
+## Use of Oraclize
+
+In determining a random order of winners, a Wolfram Alpha query is used through Oraclize.
+
+
+## Testing
+
+
+## Front End
+
+- please visit 
+- this is connected to a KittyPartySequential contract
+- have a ropsten account with at least 1 gWei
+- add the account as a participant
+- the metamask confirmation should come up
+- state will get updated to reflect so
+
+
+## Testnet Addresses / User of ENS
+
+ropsten: sequential.kittyparty.test
+
+
+The domain sequential.kittyparty.test was registered to point to the deployment on ropsten, this is currently used in the frontend demo for the system.
+
+(ipfs hash for the ABI code)
+
+
+## Video Link
 making a video
 
 
 ---------
 
-npm install truffle_hardware_wallet
-npm install 
-
-setup your process level environment variables
-
----------
-
 Running the Frontend Application
+https://www.kingoftheether.com/contract-safety-checklist.html

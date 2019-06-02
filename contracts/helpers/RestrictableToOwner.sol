@@ -4,7 +4,7 @@ pragma solidity >=0.4.21 <0.6.0;
     a way to check if a function is being called by the designated address of record
     descend from this class to make use of it
  */
-contract RestrictedToOwner{
+contract RestrictableToOwner{
     address private _owner;
 
     modifier restrictedToOwner() {

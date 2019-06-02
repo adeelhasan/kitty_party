@@ -4,3 +4,4 @@ scripts
 .secret
 .infuraKey
 .env
+bridge.log

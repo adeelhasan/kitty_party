@@ -1,22 +1,22 @@
 pragma solidity >=0.4.21 <0.6.0;
 
-import "./RestrictedToOwner.sol";
+import "./RestrictableToOwner.sol";
 
 /**
     A way to put the contract into a critical emergency mode
     Its essentially a way to flip between a critical and a non critical mode
     Has to be controlled by an Owner or an Administrator
  */
-contract CircuitBreaker is RestrictedToOwner{
+contract CircuitBreaker is RestrictableToOwner{
 
     enum CircuitBreakerState {
         Emergency,     //in emergency mode
         NoEmergency, //all is normal
         RedAlert    //a warning, lowerlevel emergency mode
     }
-    
+
     CircuitBreakerState private circuitBreakerState = CircuitBreakerState.NoEmergency;
-    
+
     modifier notInEmergency(){require(circuitBreakerState == CircuitBreakerState.NoEmergency,"no emergency"); _;}
     modifier inEmergency(){require(circuitBreakerState != CircuitBreakerState.NoEmergency, "not in emergency"); _;}
     modifier inRedAlert(){require(circuitBreakerState == CircuitBreakerState.RedAlert, "in red alert"); _;}

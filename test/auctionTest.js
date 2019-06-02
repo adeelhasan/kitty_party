@@ -13,7 +13,7 @@ var KittyPartyAuction = artifacts.require("./KittyPartyAuction.sol");
     let kittyContract;
     beforeEach(async function () {
         kittyContract = await KittyPartyAuction.deployed();         
-      });
+    });
     
 
     it("after setup, the balance should be 3", async function(){
