@@ -16,7 +16,7 @@ function withdrawMyWinnings() public notInEmergency{
 ```
 [code link]
 
-In KittyPartyAuction.sol
+In [KittyPartyAuction.sol](contracts/KittyPartyAuction.sol) 
 
 the account will also need to collect a refund of a bid that is lost, as well as the interest paid by the winning bid. These will need to be collected by these functions:
 
