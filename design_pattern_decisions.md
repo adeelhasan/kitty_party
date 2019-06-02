@@ -5,7 +5,16 @@ Design Patterns Used
 There are three places where value needs to flow out from the contract, and these are made as withdrawl functions to be invoked by the external account.
 
 In KittyPartyBase.sol:
-
+```solidity
+	function withdrawMyWinnings() public notInEmergency{
+		if ((participants[msg.sender].cycleNumberWon > 0) && !participants[msg.sender].hasWithdrawnWinnings){
+			participants[msg.sender].hasWithdrawnWinnings = true;
+			uint amountToTransfer = numberOfParticipants * amountPerParticipant;
+			msg.sender.transfer(amountToTransfer);
+		}
+	}
+```
+[code link]: https://github.com/adeelhasan/kitty_party/blob/9ec8671be22c3cb9d361644b0c13fb0c9ffe8b7d/contracts/KittyPartyBase.sol#L147-L153
 
 In KittyPartyAuction.sol
 
