@@ -61,7 +61,7 @@ There is a base contract which imposes an overall structure, and descendant clas
 
   eg, in [KittyPartyBase.sol](contracts/KittyPartyBase.sol)
 
-  ```solidity
+```solidity
 /// @dev called by the kitty admin to finish a cycle
 function completeCycle()
 	public
@@ -99,7 +99,7 @@ function completeCycle()
 
 /// @dev sub classes will define how the winner of the current cycle is chosen
 function doGetWinner() internal returns (address);
-  ````
+````
 
   and an implementation in [KittyPartySequential.sol](contracts/KittyPartySequential.sol)
 
