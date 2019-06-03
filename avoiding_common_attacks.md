@@ -6,4 +6,6 @@
 
 - there is an upper limit on the contribution amount, which together with the constraint on the number of participants, will serve to limit the total amount of value held in the contract
 
-- 
+- in the base contract, decided to always revert on a call to the fallback function. this was really to control the way funds come into the contract, and for usage to be always via well defined function. In my view, this decreases attack vector and unpredictable behavior
+
+= 

@@ -13,8 +13,6 @@ The primary goal of this project is to model this process, keeping best practice
 - [design patterns used](DESIGN_PATTERN_DECISIONS.md)
 - [avoiding common attachs](AVOIDING_COMMON_ATTACKS.md)
 
-The full contract hierarchy is illustrated in this ![uml diagram](uml_diagram.svg)
-
 ## Installation
 
 Aside from truffle, the only noteworthy item is that to test oraclize, we need the Ethereum Bridge to be installed. More details below in the testing section.
@@ -54,6 +52,22 @@ There are two implementations of [IRandomizeRangeToArray.sol](contracts/helpers/
 
 In determining a random order of winners, a Wolfram Alpha query is used through Oraclize. This is wrapped in the contract [RandomIndicesOraclizeBase.sol](contracts/helpers/randomizers/RandomIndicesOraclizeBase.sol), which will produce a list of n integers within the range of 0 to y. 
 
+## Stretch Goal - Use of ENS
+
+[sequential.kittyparty.test] is registered on ropsten, please visit with Metamask in a ropsten account.
+
+This currently points to the deployed KittyPartySequential.sol contract, and is utilized in the frontend code:
+
+```javascript
+//when on ropsten, can use ENS for contract address
+var myContractAddress = "";
+var myContractAbi = [..];
+web3.eth.ens.getAddress('sequential.kittyparty.test').then((address)=>{
+  window.myContract = new window.web3.eth.Contract (myContractAbi,address);
+  refreshContractInfo();
+});
+```
+
 ## Testing
 
 ```
@@ -63,6 +77,11 @@ truffle test
 The only noteworthy item is that to test oraclize, we need the Ethereum Bridge to be installed
 
 - [README.md](oraclizeTest/README.md) for [KittyPartyLotteryOraclize.sol](contracts/KittyPartyLotteryOraclize.sol)
+
+## Testnet Address
+
+- ropsten: [https://ropsten.etherscan.io/address/0xaab4a8e3a7091523d9a230033843715afb98b4ad](https://ropsten.etherscan.io/address/0xaab4a8e3a7091523d9a230033843715afb98b4ad)
+
 
 
 ## Front End

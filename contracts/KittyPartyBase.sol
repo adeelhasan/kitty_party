@@ -65,7 +65,7 @@ contract KittyPartyBase is CircuitBreaker, ProgressInThreeStages {
 		revert("can only add funds when participating, use addParticipant");
 	}
 
-	/// @dev fallback this will add a participant, only if they send in the correct amount
+	/// @dev this will add a participant, only if they send in the correct amount
 	function addParticipant()
         external
         payable
