@@ -38,7 +38,7 @@ contract("KittyPartyLotteryOraclize", function(accounts){
 
         // 2 or three transaction confirmations are needed here
         // best to wait for the event
-        await timeout(30000);
+        await timeout(20000);
 
         winnersOrderArrayLength = await kittyContract.orderOfWinnersLength(); //see if populated now
         if (winnersOrderArrayLength == 0){
