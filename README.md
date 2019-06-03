@@ -1,4 +1,4 @@
-### Kitty Party
+# Kitty Party
 
 A Kitty Party is an informal savings scheme in which participants pool money each month, and a rotating winner gets that aggregated sum. There are as many iterations as participants, and the primary benefit is to be able to access a lump sum amount. There are variations on how the claimant is decided each cycle.  
 
@@ -10,14 +10,7 @@ The primary goal of this project is to model this process, keeping best practice
 
 ## Overview of Design
 
-There is a base contract which imposes an overall structure, and descendant classes which implement key abstract functions. This is also called the Template Design Pattern for class design, and in this project the naming convention is to have the templated functions be prefaced by "do" eg, doGetWinnerIndex
-
-- KittyPartyBase 
-  - KittySequential
-    - KittyPartyLotteryBase
-      - KittyPartyLotteryOraclize
-      - KittyPartyLotteryUpgradable
-  - KittyPartyAuction
+- [design patterns used](DESIGN_PATTERNS_DECISIONS.md)
 
 <embed an image or thumbnail>
 For a UML diagram of this structure, please see :
@@ -25,23 +18,29 @@ sol2uml
 
 ## Installation
 
-npm install truffle_hardware_wallet
-npm install dotenv
-
-setup your process level environment variables
+Aside from truffle, the only noteworthy item is that to test oraclize, we need the Ethereum Bridge to be installed. More details below in the testing section.
 
 ## Use of a Library
+- [SafeAraryLib.sol](helpers/SafeArrayLib.sol)
 
-A very basic library that checks array bounds was created. This is then used in the contract that stores a uint array.
+A very basic library that checks array bounds, linked with [ExternalUintArrayStorage.sol](contracts/helpers/ExternalUintArrayStorage.sol).
 
+## Use of a Circuit Breaker
+- [CircuitBreaker.sol](helpers/CircuitBreaker.sol)
 
 ------------ Stretch Goals ------------
 
 ## Upgradable Contract
 
-The lottery for a kitty party needs some form of randomization, and the goal was to be able to upgrade the randomization part of a deployed contract. This then meant that the storage needed to be separated out, and passed to a new randomization. It also meant that there was need for a uniform interface to be able to call the randomization that was currently installed.
+The lottery for a kitty party needs some form of randomization, and the goal was to be able to upgrade the randomization part of a deployed contract. This then meant that the storage needed to be separated out, and passed to a new randomizer, whose requirement is to implement [IRandomizeRangeToArray.sol](contracts/helpers/randomizers/IRandomizeRangeToArray.sol). It also meant that there was need for a uniform interface to be able to call the randomization that was currently installed.
 
-<snippet of the upgradabale kitty party>
+```solidity
+/// @dev abstract function implementation, that makes the randomizer fill out the results
+function doInitialLottery() internal {
+    IRandomizeRangeToArray randomizer = IRandomizeRangeToArray(upgradableRandomizerAddress);
+    randomizer.randomize(numberOfParticipants, externalStorageAddress);
+}
+```
 
 ## Use of Oraclize
 
@@ -50,26 +49,43 @@ In determining a random order of winners, a Wolfram Alpha query is used through 
 
 ## Testing
 
+```
+truffle test
+```
+
+The only noteworthy item is that to test oraclize, we need the Ethereum Bridge to be installed
+
+- [README.md](oraclizeTest/README.md) for [KittyPartyLotteryOraclize.sol](contracts/KittyPartyLotteryOraclize.sol)
+
 
 ## Front End
 
-- please visit 
-- this is connected to a KittyPartySequential contract
+Deployed :
+- https://adeelhasan.github.io/kitty_party/ 
+- this is connected to a KittyPartySequential contract 
 - have a ropsten account with at least 1 gWei
 - add the account as a participant
 - the metamask confirmation should come up
-- state will get updated to reflect so
+- state will get updated to reflect that the participant is added
 
+Local :
+- 
 
 ## Testnet Addresses / User of ENS
 
-ropsten: sequential.kittyparty.test
+[sequential.kittyparty.test] is registered on ropsten, please visit with Metamask in a ropsten account.
 
+This currently points to the deployed KittyPartySequential.sol contract, and is utilized in the frontend code:
 
-The domain sequential.kittyparty.test was registered to point to the deployment on ropsten, this is currently used in the frontend demo for the system.
-
-(ipfs hash for the ABI code)
-
+```
+			//using ropsten, can use ENS for contract address
+			var myContractAddress = "";
+			var myContractAbi = [..];
+			web3.eth.ens.getAddress('sequential.kittyparty.test').then((address)=>{
+				window.myContract = new window.web3.eth.Contract (myContractAbi,address);
+				refreshContractInfo();
+			});
+```
 
 ## Video Link
 making a video
@@ -77,5 +93,5 @@ making a video
 
 ---------
 
-Running the Frontend Application
-https://www.kingoftheether.com/contract-safety-checklist.html
+
+[sequential.kittyparty.test]:  https://manager.ens.domains/name/sequential.kittyparty.test

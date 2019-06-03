@@ -48,9 +48,9 @@ I decided not to make this base have a means to transfer ownership, intend to ad
 
 
 
-## Object Design
+## Template Design Pattern
 
-There is a base contract which imposes an overall structure, and descendant classes which implement key abstract functions. This is also called the Template Design Pattern for class design, and in this project the naming convention is to have the templated functions be prefaced by "do" eg, doGetWinnerIndex. 
+There is a base contract which imposes an overall structure, and descendant classes which implement key abstract functions. This is also called the Template Design Pattern for class design, and in this project the naming convention is to have the templated functions be prefaced by "do" eg, ***doGetWinner***. 
 
 - KittyPartyBase 
   - KittySequential

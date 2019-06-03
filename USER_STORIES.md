@@ -1,6 +1,6 @@
-# Kitty Party
+## Kitty Party
 
-A group of people who are socially acquainted with each other decide to pool a fixed sum of money every month (or a fixed time period which is usually a month) and physically gather in one place. This pool of money or the ***"kitty"*** is then picked up by one person each month. Its traditional for there to be food, and for the meeting place to be a restaurant, particularly if the group is a well heeled. Hence the name, [Kitty Party]. There are as many kitty parties as there are participants, and its customary for the winner of that cycle to foot the bill, or to host it at their own home. The benefit is to be able to save up for a larger payout, and in some communities its a very relevant way to finance a larger purchase.
+A group of people who are socially acquainted with each other decide to pool a fixed sum of money every month (or a fixed time period which is usually a month) and physically gather in one place. This pool of money or the ***kitty*** is then picked up by one person each month. Its traditional for there to be food, and for the meeting place to be a restaurant, particularly if the group is a well heeled. Hence the name, [Kitty Party]. There are as many kitty parties as there are participants, and its customary for the winner of that cycle to foot the bill, or to host it at their own home. The benefit is to be able to save up for a larger payout, and in some communities its a very relevant way to finance a larger purchase.
 
 Who gets the kitty every month is usually based on some kind of a lottery. This lottery can be at the first party, or it can be at each meeting. This scheme is informal in that if one person cannot show up, then they send the money along with a neighbour, or they drop it off the next day. The risk of a default is mitigated by social ties.
 
@@ -10,7 +10,7 @@ A [chit fund] is a more formal scheme, based on the same idea as a kitty party, 
 
 ---------------------
 
-User Stories
+## User Stories
 
 Informal Variant :
 
@@ -21,7 +21,7 @@ Informal Variant :
 - if someone couldnt make the meeting, they would have given the amount to the organizer separately
 - at the first meeting, there is a random draw -- names are written on paper chits and someone (usually a child) will pick these out
 
-Formal Variant ([chit fund]}):
+Formal Variant ([chit fund]):
 
 - an announcement is made in a newspaper or via flyers
 - whoever wants to join fills out an application, and brings in the money
