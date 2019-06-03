@@ -1,11 +1,11 @@
 pragma solidity >=0.4.21 <0.6.0;
 
 import "./helpers/CircuitBreaker.sol";
-import "./helpers/ThreeStages.sol";
+import "./helpers/ProgressInThreeStages.sol";
 
 
 // base contract for all the variants of a kitty party savings scheme
-contract KittyPartyBase is CircuitBreaker, ThreeStages {
+contract KittyPartyBase is CircuitBreaker, ProgressInThreeStages {
 
 	struct KittyParticipant{
 		bool exists;  //whether the structure actually exists or is valid, since the default is always false
@@ -135,8 +135,8 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
         atStage(Stages.Started)
         returns (bool)
 	{
-		for (uint i = 0; i<numberOfParticipants; i++){
-			if (!participants[participant_addresses[i]].hasContributedThisCycle){
+		for (uint i = 0; i<numberOfParticipants; i++) {
+			if (!participants[participant_addresses[i]].hasContributedThisCycle) {
 				return false;
 			}
 		}
@@ -144,12 +144,13 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 	}
 
     /// @dev can be called at any point to take out the amount that was won
-	function withdrawMyWinnings() public notInEmergency{
-		if ((participants[msg.sender].cycleNumberWon > 0) && !participants[msg.sender].hasWithdrawnWinnings){
-			participants[msg.sender].hasWithdrawnWinnings = true;
-			uint amountToTransfer = numberOfParticipants * amountPerParticipant;
-			msg.sender.transfer(amountToTransfer);
-		}
+	function withdrawMyWinnings() public notInEmergency {
+		require((participants[msg.sender].cycleNumberWon > 0) && !participants[msg.sender].hasWithdrawnWinnings, "nothing to withdraw");
+		require((numberOfParticipants * amountPerParticipant)/amountPerParticipant == numberOfParticipants, "overflow failure");
+
+		uint amountToTransfer = numberOfParticipants * amountPerParticipant;
+		participants[msg.sender].hasWithdrawnWinnings = true; //reset balance flag to address reentrance
+		msg.sender.transfer(amountToTransfer);
 	}
 
     /// @dev called by the kitty admin to finish a cycle
@@ -177,7 +178,7 @@ contract KittyPartyBase is CircuitBreaker, ThreeStages {
 		emit WinnerChosenForCycle(winner, currentCycleNumber);
 
 		//if all cycles have been called, the kittyParty is finished
-		if (numberOfParticipants == currentCycleNumber){
+		if (numberOfParticipants == currentCycleNumber) {
 			nextStage();
 			emit KittyFinished();
 		}

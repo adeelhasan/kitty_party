@@ -3,7 +3,7 @@ pragma solidity >=0.4.21 <0.6.0;
 import "./SafeArrayLib.sol";
 
 /**
-    storage which can addressable.
+    storage which is meant to be referenced as a contract, and saved as an address
     links to SafeArrayLib which has bounds checking
  */
 contract ExternalUintArrayStorage {

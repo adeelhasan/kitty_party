@@ -10,7 +10,7 @@ import "./KittyPartyBase.sol";
  */
 contract KittyPartyAuction is KittyPartyBase
 {
-    struct Bid{
+    struct Bid {
       uint amount;
       bool winningBid;
       bool exists;
@@ -19,14 +19,14 @@ contract KittyPartyAuction is KittyPartyBase
     mapping(address=>uint) public bidRefundWithdrawls;
     mapping(address=>Bid) public bids;
     uint public numberOfBidders;
-    uint constant MAX_BID_VALUE = 1 ether;
+    uint constant MAX_BID_VALUE = MAX_CONTRIBUTION / 2 ether;
 
-    modifier hasBid(){
+    modifier hasBid() {
       require(bids[msg.sender].exists,"bid exists");
       _;
     }
 
-    modifier hasNotBidAsYet(){
+    modifier hasNotBidAsYet() {
         require(!bids[msg.sender].exists,"bid does not exist");
         _;
     }
@@ -39,7 +39,7 @@ contract KittyPartyAuction is KittyPartyBase
     /// @dev log that a bid was made
     event BidReceived(address indexed bidder);
 
-    constructor (uint _amount) KittyPartyBase(_amount) public{}
+    constructor (uint _amount) KittyPartyBase(_amount) public {}
 
     /// @dev receive a bid, has to be sent in by an existing participant
     function receiveBid()
@@ -67,15 +67,8 @@ contract KittyPartyAuction is KittyPartyBase
             return (0,false,false);
     }
 
-    /// @dev after a cycle is finished, a participant can claim their share of the winner's bid
+    /// @dev after a cycle is finished, a participant can claim their share of the winner's bid + failed bid value
     function withdrawMyInterest() public {
-        uint amount = bidRefundWithdrawls[msg.sender];
-        bidRefundWithdrawls[msg.sender] = 0;
-        msg.sender.transfer(amount);
-    }
-
-    /// @dev after a cycle is finished, a participant can can claim their unused bid amount
-    function withdrawBidRefund() public {
         uint amount = bidRefundWithdrawls[msg.sender];
         bidRefundWithdrawls[msg.sender] = 0;
         msg.sender.transfer(amount);
@@ -92,8 +85,8 @@ contract KittyPartyAuction is KittyPartyBase
     /// @dev implementation of abstract to get the winner for this cycle
     function doGetWinner() internal returns (address) {
         //if this is the last cycle, so no bidders here, just return the remaining participant who has not won as yet
-        if ((numberOfParticipants - currentCycleNumber) < 1){
-          for (uint i = 0; i<numberOfParticipants; i++){
+        if ((numberOfParticipants - currentCycleNumber) < 1) {
+          for (uint i = 0; i<numberOfParticipants; i++) {
             if (participants[participant_addresses[i]].cycleNumberWon==0)
               return participant_addresses[i];
           }
@@ -125,17 +118,16 @@ contract KittyPartyAuction is KittyPartyBase
 
         //find what the highest bid amount is, so that it can get distributed out
         uint interestToBeDistributed = 0;
-        for (uint i = 0; i<participant_addresses.length; i++){
-            if (bids[participant_addresses[i]].exists && bids[participant_addresses[i]].winningBid){
+        for (uint i = 0; i<participant_addresses.length; i++) {
+            if (bids[participant_addresses[i]].exists && bids[participant_addresses[i]].winningBid) {
                 interestToBeDistributed = bids[participant_addresses[i]].amount / (numberOfBidders-1);
                 continue;
             }
         }
 
         //setup the withdrawl pattern so that the interest to be distributed can be claimed / retrieved
-        for (uint i = 0; i<participant_addresses.length; i++){
-            if (bids[participant_addresses[i]].exists && !bids[participant_addresses[i]].winningBid)
-            {
+        for (uint i = 0; i<participant_addresses.length; i++) {
+            if (bids[participant_addresses[i]].exists && !bids[participant_addresses[i]].winningBid) {
                 bidRefundWithdrawls[participant_addresses[i]] = bids[participant_addresses[i]].amount + interestToBeDistributed;
             }
             bids[participant_addresses[i]] = Bid(0,false,false); //reset for the next cycle

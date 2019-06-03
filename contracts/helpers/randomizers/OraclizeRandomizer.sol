@@ -17,7 +17,7 @@ contract OraclizeRandomizer is RandomIndicesOraclizeBase,IRandomizeRangeToArray 
     /// @param _arrayStorage Address the location of the storage to store results at
     function randomize(uint numberToSelect, address _arrayStorage) external {
         storageLocationAddress = _arrayStorage;
-        initiateQuery(numberToSelect);
+        initiateOraclizeQuery(numberToSelect);
     }
 
     function getRandomizerName() public pure returns(string memory){

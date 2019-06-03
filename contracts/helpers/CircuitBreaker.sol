@@ -7,7 +7,7 @@ import "./RestrictableToOwner.sol";
     Its essentially a way to flip between a critical and a non critical mode
     Has to be controlled by an Owner or an Administrator
  */
-contract CircuitBreaker is RestrictableToOwner{
+contract CircuitBreaker is RestrictableToOwner {
 
     enum CircuitBreakerState {
         Emergency,     //in emergency mode
@@ -26,13 +26,21 @@ contract CircuitBreaker is RestrictableToOwner{
     event CircuitBreakerEmergencyEnded();
 
     /// @dev put state into a level one emergency mode
-    function setCirctuitBreakerToRedAlert() public notInEmergency restrictedToOwner {
+    function setCirctuitBreakerToRedAlert()
+        public
+        notInEmergency
+        restrictedToOwner
+    {
         circuitBreakerState = CircuitBreakerState.RedAlert;
         emit CircuitBreakerInRedAlert();
     }
 
     /// @dev put state out of emergency mode
-    function setCircuitBreakerEmergencyFinished() public inEmergency restrictedToOwner {
+    function setCircuitBreakerEmergencyFinished()
+        public
+        inEmergency
+        restrictedToOwner
+    {
         circuitBreakerState = CircuitBreakerState.NoEmergency;
         emit CircuitBreakerEmergencyEnded();
     }

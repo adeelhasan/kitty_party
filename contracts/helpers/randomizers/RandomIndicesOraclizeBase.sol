@@ -41,7 +41,7 @@ contract RandomIndicesOraclizeBase is usingOraclize{
 
     /// @dev send out the query
     /// @param arrayLength Uint the upper bound value of the array index to choose within
-    function initiateQuery(uint arrayLength) internal {
+    function initiateOraclizeQuery(uint arrayLength) internal {
         //the oraclize query returns x random numbers in a range of y. however these are not
         //unique selections, so to ensure that we get a set of uniques, have to get a multiple of the count
         string memory query_string = strConcat("RandomInteger[",uint2str(arrayLength-1),",",uint2str(arrayLength*5),"]");

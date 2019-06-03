@@ -1,9 +1,9 @@
 pragma solidity >=0.4.21 <0.6.0;
 
-/** 
+/**
     simple state manager, moves between three of them
 */
-contract ThreeStages {
+contract ProgressInThreeStages {
 
     enum Stages {NotStarted, Started, Finished}
     Stages stage;

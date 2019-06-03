@@ -34,7 +34,7 @@ contract KittyPartyLotteryOraclize is RandomIndicesOraclizeBase, KittyPartyLotte
 
     /// @dev abstract function implemented here, will initiate the lottery
     function doInitialLottery() internal {
-        initiateQuery(numberOfParticipants);
+        initiateOraclizeQuery(numberOfParticipants);
     }
 
     /// @dev abstract function implemented here, nothing happens in this case
