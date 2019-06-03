@@ -19,7 +19,7 @@ contract RandomIndicesOraclizeBase is usingOraclize{
     event OraclizeResponseReceived();
 
     /// @dev this is called from the oraclize service, contract has to have enough balance to cover the gas used
-    /// @param myId Bytes32 was assigned when the call was initiated, meant as a soft security check
+    /// @param myid Bytes32 was assigned when the call was initiated, meant as a soft security check
     /// @param result String the result of whatever function or lookup was called from "initiateQuery"
     function __callback(bytes32 myid, string memory result) public {
         if (msg.sender != oraclize_cbAddress()) revert("oraclize callback not from expected source");
