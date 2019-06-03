@@ -19,7 +19,7 @@ contract KittyPartyAuction is KittyPartyBase
     mapping(address=>uint) public bidRefundWithdrawls;
     mapping(address=>Bid) public bids;
     uint public numberOfBidders;
-    uint constant MAX_BID_VALUE = MAX_CONTRIBUTION / 2 ether;
+    uint constant MAX_BID_VALUE = MAX_CONTRIBUTION;
 
     modifier hasBid() {
       require(bids[msg.sender].exists,"bid exists");
