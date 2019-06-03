@@ -10,7 +10,7 @@ The primary goal of this project is to model this process, keeping best practice
 
 ## Overview of Design
 
-- [design patterns used](DESIGN_PATTERNS_DECISIONS.md)
+- [design patterns used](DESIGN_PATTERN_DECISIONS.md)
 
 <embed an image or thumbnail>
 For a UML diagram of this structure, please see :
@@ -26,11 +26,16 @@ Aside from truffle, the only noteworthy item is that to test oraclize, we need t
 A very basic library that checks array bounds, linked with [ExternalUintArrayStorage.sol](contracts/helpers/ExternalUintArrayStorage.sol).
 
 ## Use of a Circuit Breaker
-- [CircuitBreaker.sol](helpers/CircuitBreaker.sol)
 
------------- Stretch Goals ------------
+- [CircuitBreaker.sol](helpers/CircuitBreaker.sol) has modifiers
+  ```solidity
+    modifier notInEmergency(){require(circuitBreakerState == CircuitBreakerState.NoEmergency,"no emergency"); _;}
+    modifier inEmergency(){require(circuitBreakerState != CircuitBreakerState.NoEmergency, "not in emergency"); _;}
+    modifier inRedAlert(){require(circuitBreakerState == CircuitBreakerState.RedAlert, "in red alert"); _;}
+  ``` 
+- [KittyPartyBase.sol](contracts/KittyPartyBase.sol) descends from CircuitBreaker, and uses the modifiers
 
-## Upgradable Contract
+## Stretch Goal - Upgradable Contract
 
 The lottery for a kitty party needs some form of randomization, and the goal was to be able to upgrade the randomization part of a deployed contract. This then meant that the storage needed to be separated out, and passed to a new randomizer, whose requirement is to implement [IRandomizeRangeToArray.sol](contracts/helpers/randomizers/IRandomizeRangeToArray.sol). It also meant that there was need for a uniform interface to be able to call the randomization that was currently installed.
 
@@ -42,10 +47,13 @@ function doInitialLottery() internal {
 }
 ```
 
-## Use of Oraclize
+There are two implementations of [IRandomizeRangeToArray.sol](contracts/helpers/randomizers/IRandomizeRangeToArray.sol):
+- [BlockRandomizer.sol](contracts/helpers/randomizers/BlockRandomizer.sol)
+- [OraclizeRandomizer.sol](contracts/helpers/randomizers/OraclizeRandomizer.sol)
 
-In determining a random order of winners, a Wolfram Alpha query is used through Oraclize.
+## Stretch Goal - Use of Oraclize
 
+In determining a random order of winners, a Wolfram Alpha query is used through Oraclize. This is wrapped in the contract [RandomIndicesOraclizeBase.sol](contracts/helpers/randomizers/RandomIndicesOraclizeBase.sol), which will produce a list of n integers within the range of 0 to y. 
 
 ## Testing
 
@@ -64,27 +72,27 @@ Deployed :
 - https://adeelhasan.github.io/kitty_party/ 
 - this is connected to a KittyPartySequential contract 
 - have a ropsten account with at least 1 gWei
-- add the account as a participant
+- click "Add as Participant"
 - the metamask confirmation should come up
 - state will get updated to reflect that the participant is added
 
 Local :
 - 
 
-## Testnet Addresses / User of ENS
+## Testnet Addresses / Use of ENS
 
 [sequential.kittyparty.test] is registered on ropsten, please visit with Metamask in a ropsten account.
 
 This currently points to the deployed KittyPartySequential.sol contract, and is utilized in the frontend code:
 
-```
-			//using ropsten, can use ENS for contract address
-			var myContractAddress = "";
-			var myContractAbi = [..];
-			web3.eth.ens.getAddress('sequential.kittyparty.test').then((address)=>{
-				window.myContract = new window.web3.eth.Contract (myContractAbi,address);
-				refreshContractInfo();
-			});
+```javascript
+//when on ropsten, can use ENS for contract address
+var myContractAddress = "";
+var myContractAbi = [..];
+web3.eth.ens.getAddress('sequential.kittyparty.test').then((address)=>{
+  window.myContract = new window.web3.eth.Contract (myContractAbi,address);
+  refreshContractInfo();
+});
 ```
 
 ## Video Link
