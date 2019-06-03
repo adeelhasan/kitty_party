@@ -18,9 +18,9 @@ npm install -g ethereum-bridge
 npm run brdige
 ```
 
-This basically starts the bridge with the correct parameters. It can take a little time for the bridge to fully boot up, you will need to wait for that.
+This basically starts the bridge with the correct parameters. It can take a little time for the bridge to fully boot up, you will need to wait for that. When you see "(Ctrl+C to exit)" it would be ready.
 
-4. run the test :
+4. from another terminal, run the test :
 
 ```
 truffle test .\oraclizeTest\oraclizeTest.js

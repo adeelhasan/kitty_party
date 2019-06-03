@@ -112,5 +112,7 @@ function doGetWinner() internal returns (address);
     }
 ```
 
+![A full uml image is here](uml_diagram.svg)
+
 [code link]: https://github.com/adeelhasan/kitty_party/blob/9ec8671be22c3cb9d361644b0c13fb0c9ffe8b7d/contracts/KittyPartyBase.sol#L147-L153
 [code link2]: https://github.com/adeelhasan/kitty_party/blob/master/contracts/KittyPartyAuction.sol#L71-75

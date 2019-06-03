@@ -11,10 +11,9 @@ The primary goal of this project is to model this process, keeping best practice
 ## Overview of Design
 
 - [design patterns used](DESIGN_PATTERN_DECISIONS.md)
+- [avoiding common attachs](AVOIDING_COMMON_ATTACKS.md)
 
-<embed an image or thumbnail>
-For a UML diagram of this structure, please see :
-sol2uml
+The full contract hierarchy is illustrated in this ![uml diagram](uml_diagram.svg)
 
 ## Installation
 
