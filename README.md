@@ -90,31 +90,13 @@ Deployed :
 - https://adeelhasan.github.io/kitty_party/ 
 - this is connected to a KittyPartySequential contract 
 - have a ropsten account with at least 1 gWei
-- click "Add as Participant"
+- click "Contribute to this Cycle"
 - the metamask confirmation should come up
-- state will get updated to reflect that the participant is added
+- state will get updated to reflect that the participant has contriuted for current cycle
 
-Local :
-- 
-
-## Testnet Addresses / Use of ENS
-
-[sequential.kittyparty.test] is registered on ropsten, please visit with Metamask in a ropsten account.
-
-This currently points to the deployed KittyPartySequential.sol contract, and is utilized in the frontend code:
-
-```javascript
-//when on ropsten, can use ENS for contract address
-var myContractAddress = "";
-var myContractAbi = [..];
-web3.eth.ens.getAddress('sequential.kittyparty.test').then((address)=>{
-  window.myContract = new window.web3.eth.Contract (myContractAbi,address);
-  refreshContractInfo();
-});
-```
 
 ## Video Link
-making a video
+submitted in the project form
 
 
 ---------

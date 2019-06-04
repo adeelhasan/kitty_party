@@ -175,7 +175,10 @@
 				};
 				myContract.methods.addParticipant().send(txnObject)
 				 .on('transactionHash', function(hash){
-				 	$('#Tx').text(hash);
+					 $('#Tx').text(hash);
+					 setTimeout(() => {
+						refreshContractInfo(); 
+					 }, 25000);
 				 })
 				 .on('receipt', function(receipt){
 				 	$('#Tx').text('received');
@@ -191,7 +194,6 @@
 					 $('#Tx').text('Failure');
 				})
 				.then(function(receipt) {
-					console.log("Received Receipt");
 					refreshContractInfo();
 				});
 			});
