@@ -95,9 +95,9 @@ Deployed :
 - state will get updated to reflect that the participant has contriuted for current cycle
 
 
-## Video Link
-submitted in the project form
-
+## Presenatation
+[https://vimeo.com/340220008](https://vimeo.com/340220008)
+[PowerPoint used in the video](kitty_party.pptx)
 
 ---------
 
